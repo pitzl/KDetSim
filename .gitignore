@@ -1,0 +1,8 @@
+
+*~
+*.o
+*.root
+*.pcm
+*UX*
+*.html
+*_files

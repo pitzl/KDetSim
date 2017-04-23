@@ -1,0 +1,33 @@
+
+original code from
+http:kdetsim.org
+as of Apr 2017
+
+--------------------------------------------------------------------------------
+prerequisites:
+ROOT installation (ROOT 6  preferred)
+
+--------------------------------------------------------------------------------
+compile and link:
+make
+( creates lib/KDetSim.sl and src/KDetSimDictUX_rdict.pcm )
+
+--------------------------------------------------------------------------------
+once, before you try it out
+cd ~/ROOT/root/lib
+ln -s /home/YOU/KDetSim/src/KDetSimDictUX_rdict.pcm   KDetSimDictUX_rdict.pcm
+
+--------------------------------------------------------------------------------
+cd ~/KDetSim/examples
+root -l
+gSystem->Load( "/home/YOU/KDetSim/lib/KDetSim.sl" );
+.x TestPixel_1.C
+
+--------------------------------------------------------------------------------
+unit: um
+signal: one e per segment
+
+--------------------------------------------------------------------------------
+extension (Daniel Pitzl, DESY)
+multiple readout nodes: up to 99 (for multi-pixel detector)
+	 (multiple Ramo potentials, see TestPixel_2 or TestPixel_9)
