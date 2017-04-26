@@ -1,7 +1,7 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_8.C
+// .x Pixel_8.C
 // .ls
 
 // shoot quer through 3 pixels, double junction
@@ -26,7 +26,7 @@
   // doping (space charge):
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]+[1]*x[2]", 0, 3000, 0, 3000, 0, 3000 );
-  f2->SetParameter( 0,  1 ); // start
+  f2->SetParameter( 0,  1 ); // start [1/um^3]
   f2->SetParameter( 1, -2.0/300 ); // slope for double junction
   det->NeffF = f2;
 

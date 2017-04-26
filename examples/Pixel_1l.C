@@ -1,16 +1,18 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_8.C
+// .L fitlang.C
+// .x Pixel_1l.C
 // .ls
+// one pixel, with Landau flucts
 
 {
   KPixel * det = new KPixel( 1, 1*150, 1*100, 300 ); // 1 pixel, [um]
 
-  det->Voltage = 150;
+  det->Voltage = -150; // applied at back, collect e on top
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]", 0, 3000, 0, 3000, 0, 3000 );
-  f2->SetParameter( 0, -2 ); // doping
+  f2->SetParameter( 0, 1 ); // n-in-n doping [1/um^3]
   det->NeffF = f2;
 
   det->SetUpVolume( 5, 5, 3 ); // micron cubes
@@ -24,6 +26,10 @@
 
   // track entry and exit point:
 
+  det->Temperature = 293;
+  det->diff = 1;
+  det->Landau = 0;
+
   det->enp[0] = 0.5*150; // entry point x [um]
   det->enp[1] = 0.5*100; // entry point y
   det->enp[2] =  3; // entry point z
@@ -32,22 +38,13 @@
   det->exp[1] = 0.5*100;
   det->exp[2] = 297; // [um]
 
-  // Landau: 294 um
-
-  const int nseg = 21;
-
-  // define the length of the track through your sensors 
   double dist = TMath::Sqrt( TMath::Power( det->enp[0] - det->exp[0], 2 ) +
 			     TMath::Power( det->enp[1] - det->exp[1], 2 ) +
 			     TMath::Power( det->enp[2] - det->exp[2], 2 ) );
 
-  // calculate most probable charge per segement in ke:
-  double lanseg = dist/nseg*75/1E3; // 75 e/um
+  // Landau path: 294 um
 
-  // energy loss distribution:
-  TF1 * lan = new TF1( "lan"," TMath::Landau(x,[0],[1])", 0, 20*lanseg );
-  lan->SetParameter( 0, lanseg ); // peak
-  lan->SetParameter( 1, lanseg/8. ); // width
+  const int nseg = 21;
 
   // segment vector:
   Double_t vs[3] = { ( (double) det->exp[0]-det->enp[0] ) / nseg,
@@ -120,20 +117,28 @@
 
   // event loop:
 
+  // calculate most probable charge per segement in ke:
+  double lanseg = dist/nseg*75E-3; // 0.075 ke/um
+
+  // energy loss distribution:
+  TF1 * lan = new TF1( "lan"," TMath::Landau(x,[0],[1])", 0, 20*lanseg );
+  lan->SetParameter( 0, lanseg ); // peak
+  lan->SetParameter( 1, lanseg/8. ); // width
+
   TCanvas c1;
 
-  const int mev = 10;
+  const int pev = 10;
 
-  TH1F * hev[mev];
+  TH1F * hev[pev];
 
-  TH1I hlan( "hlan", "segment charge;charge [ke];segments", 100, 0, 10*lanseg );
-  TH1I hsig( "hsig", "signal;signal charge [ke];events", 100, 0, 50 );
+  TH1I hqs( "hqs", "segment charge;charge [ke];segments", 100, 0, 10*lanseg );
+  TH1I hqt( "hqt", "track charge;track charge [ke];events", 100, 0, 100 );
 
   bool ldb = 0;
 
   for( int j = 0; j < 10000; ++j ) {
 
-    if( j < mev )
+    if( j < pev )
       hev[j] = new TH1F( Form( "landau_%i", j ), "current vs time;time [ns];current",
 			 det->pos->GetNbinsX(),
 			 det->pos->GetXaxis()->GetXmin(),
@@ -150,18 +155,18 @@
 
     for( int i = 0; i < nseg; ++i ) {
       double q = lan->GetRandom();
+      hqs.Fill( q );
       if( ldb ) std::cout << " " << q;
-      if( j < mev )
+      if( j < pev )
 	hev[j]->Add( hiss[i], q/nseg );
       hp.Add( hiss[i], q/nseg );
-      hlan.Fill( q );
     }
 
     // pulse vs time for m events:
 
     if( j == 0 )
 	hev[j]->Draw();
-    else if( j < mev ) {
+    else if( j < pev ) {
       hev[j]->SetLineColor(j+1);
       hev[j]->Draw("SAME");
     }
@@ -172,14 +177,15 @@
 		<< ", " << hp.Integral()
 		<< std::endl;
 
-    hsig.Fill( hp.Integral() );
+    hqt.Fill( hp.Integral() );
 
   } // events
 
   TCanvas c2;
-  hlan.Draw();
+  hqs.Draw();
 
   TCanvas c3;
-  hsig.Draw();
+  hqt.Draw();
 
+  fitlang( hqt.GetName() );
 }

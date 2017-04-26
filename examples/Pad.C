@@ -1,15 +1,17 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPad.C
+// .x Pad.C
 // .ls
 
 {
   TF1 *neff = new TF1( "neff", "[0]+x[0]*0", 0, 1000 );
-  neff->SetParameter( 0, 1 );
-  KPad det( 50, 300 );
+  neff->SetParameter( 0, 1 ); // n-in-n doping [1/um^3]
+
+  KPad det( 50, 300 ); // simple diode
   det.Neff = neff;
-  det.Voltage = -200;
+  det.Voltage = -200; // applied at back, collect at top
+
   det.SetUpVolume(1);
   det.SetUpElectrodes();
 
@@ -25,5 +27,5 @@
   det.sum->Draw();
   det.pos->Draw("SAME");
   det.neg->Draw("SAME");
-  
+
 }

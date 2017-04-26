@@ -19,6 +19,7 @@
 #pragma link C++ class KImplant2D;
 
 #pragma link C++ function KHisProject;
+#pragma link C++ function GetNhs;
 #pragma link C++ function KInterpolate2D;
 #pragma link C++ function KAlpha;
 #pragma link C++ function KM;

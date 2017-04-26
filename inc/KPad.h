@@ -24,7 +24,7 @@
 #include "TMinuit.h"
 #include "KDetector.h"
 
-Double_t laser(Double_t *, Double_t *);
+Double_t laser( Double_t *, Double_t * );
 
 class KPad : public KDetector {
 

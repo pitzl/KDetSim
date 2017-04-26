@@ -104,8 +104,8 @@ void KPad::rk4(float y[], float dydx[], int n, float x, float h, float yout[])
   free_vector(dyt,1,n);
   free_vector(dym,1,n);
 }
-//_______________________________________________________________________________
 
+//------------------------------------------------------------------------------
 KPad::~KPad()
 {
 }
@@ -216,7 +216,6 @@ void KPad::GetField()
 
 void KPad::GetField(TH1F *rf)
 {
-
   Int_t i,j;
   Double_t *x=new Double_t [nx*ny+1];
   PhyPot=TArrayF(ny+2);
@@ -232,7 +231,6 @@ void KPad::GetField(TH1F *rf)
 
 void KPad::GetField(TF1 *rf)
 {
-
   Int_t i,j;
   Double_t *x=new Double_t [nx*ny+1];
   PhyPot=TArrayF(ny+2); 

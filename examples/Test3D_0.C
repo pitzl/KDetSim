@@ -1,5 +1,5 @@
-{  
 
+{
   gStyle->SetCanvasPreferGL(kTRUE);
 
   KDetector det;
@@ -41,19 +41,16 @@
   det->ElCylinder(P7,10,50,3,16385,2);
   det->ElCylinder(P7,8,50,3,16385,1);
 
-
-
   det->SetBoundaryConditions();
 
-    det.CalField(0);
-    det.CalField(1);
+  det.CalField(0);
+  det.CalField(1);
 
-   det->enp[0]=40;
-   det->enp[1]=100;
-   det->enp[2]=1;
-   det->exp[0]=40;
-   det->exp[1]=90;
-   det->exp[2]=100;
+  det->enp[0]=40;
+  det->enp[1]=100;
+  det->enp[2]=1;
+  det->exp[0]=40;
+  det->exp[1]=90;
+  det->exp[2]=100;
 
-   
 }

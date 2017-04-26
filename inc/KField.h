@@ -21,10 +21,11 @@
 
 Float_t KInterpolate2D( TH3F *, Float_t ,Float_t, Int_t=3, Int_t=1 );
 
+//class KField : public KGeometry {
 class KField {
 
  private:
-  Int_t Method;   // Method to calculate the intermediate points
+  Int_t Method;   // Method to calculate the intermediate points (unused)
   Int_t dim;
  public:
   TH3F *U;
@@ -33,7 +34,7 @@ class KField {
   TH3F *Ez;
   TH3F *E;
 
-  KField() { U = NULL; Ex = NULL; Ey = NULL; Ez = NULL; };
+  KField() { U = NULL; Ex = NULL; Ey = NULL; Ez = NULL; E = NULL; };
   ~KField();
   void  CalFieldXYZ(Float_t x, Float_t y, Float_t z, Float_t *E); 
   TVector3 *CalFieldXYZ(Float_t x, Float_t y, Float_t z); 

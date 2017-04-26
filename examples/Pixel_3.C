@@ -1,14 +1,14 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_8.C
+// .x Pixel_3.C
 // .ls
 
 // shoot quer through 3 pixels
 {
   KPixel * det = new KPixel( 3, 3*100, 1*150, 300 ); // 3 pixel, [um]
 
-  det->SetUpVolume( 5, 5, 5 ); // 5x5x5 um cubes (speed vs granularity)
+  det->SetUpVolume( 3, 3, 3 ); // um cubes (speed vs granularity)
 
   det->SetUpPixel( 0, 0.5*100,  0.5*150, 40, 65, 1, 1     ); // Grnd
   det->SetUpPixel( 1, 1.5*100,  0.5*150, 40, 65, 1, 16385 ); // collecting electrode at Grnd
@@ -16,10 +16,10 @@
 
   // bias applied at bot, negative to collect e on top
   //det->Voltage = -50; // below full depletion for Neff = 1, d = 300
-  //det->Voltage = -70; // below full depletion for Neff = 1
-  //det->Voltage = -75; // just full depletion for Neff = 1, d = 300
-  //det->Voltage = -80; // full depletion for Neff = 1
-  det->Voltage = -99; // above full depletion for Neff = 1
+  //det->Voltage = -67; // just full depletion for Neff = 1, d = 300
+  det->Voltage = -300; // above full depletion for Neff = 1, d = 300
+
+  // E-field unit is V/um
 
   det->SetUpElectrodes();
   det->SetBoundaryConditions();
@@ -27,12 +27,24 @@
   // doping (space charge):
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]", 0, 3000, 0, 3000, 0, 3000 );
-  f2->SetParameter( 0, 1 ); // n in n
+  f2->SetParameter( 0, 1 ); // n in n [1/um^3]
   //f2->SetParameter( 0, 0 ); // no doping
   det->NeffF = f2;
 
   det->CalField(0); // E-field
   det->CalField(1); // Ramo weight field
+
+  TCanvas cEZ2;
+  det->Draw( "EZxz2", 50 )->Draw("COLZ");
+
+  TCanvas cEZ1;
+  det->Draw1D( "EZxz1", 50, 2, 150 )->Draw();
+  //Projection->SetTitle("E_{z} vs z");
+
+  TCanvas cWP;
+  det->Draw( "WPxz", 50 )->Draw("COLZ");
+
+  // track:
 
   det->enp[0] = 0.0*100; // left
   det->enp[1] = 0.5*150; // entry point y

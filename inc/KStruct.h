@@ -23,7 +23,6 @@
 #include "KMaterial.h"
 
 #define MAXPOINT 10001
-#define MAXSEC 20
 
 class KStruct {
  public:
@@ -44,7 +43,7 @@ class KStruct {
   Float_t MulCar[MAXPOINT];
 
   KStruct();
-  ~KStruct(){};
+  ~KStruct();
   void Clear();
   void Info();
   void Draw( Char_t *);

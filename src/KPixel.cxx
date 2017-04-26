@@ -3,6 +3,7 @@
 
 ClassImp(KPixel)
 
+//------------------------------------------------------------------------------
 KPixel::KPixel( Int_t n, Float_t x, Float_t y, Float_t z )
 {
   nPix = n;
@@ -28,6 +29,7 @@ KPixel::KPixel( Int_t n, Float_t x, Float_t y, Float_t z )
 
 }
 
+//------------------------------------------------------------------------------
 KPixel::~KPixel()
 {
   delete PSx; 
@@ -38,7 +40,7 @@ KPixel::~KPixel()
   delete PSW;
 }
 
-
+//------------------------------------------------------------------------------
 void KPixel::SetUpVolume( Float_t St1, Float_t St2, Float_t St3 )
 {
   nx = (int)(CellX/St1);
@@ -50,23 +52,26 @@ void KPixel::SetUpVolume( Float_t St1, Float_t St2, Float_t St3 )
 	    << ", nz " << nz
 	    << std::endl;
 
-  EG = new TH3I( "EG", "EG", nx, 0, CellX, ny, 0, CellY, nz, 0, CellZ );
+  EG = new TH3I( "EG", "EG_0", nx, 0, CellX, ny, 0, CellY, nz, 0, CellZ );
   EG->GetXaxis()->SetTitle("x [#mum]");
   EG->GetYaxis()->SetTitle("y [#mum]");
   EG->GetZaxis()->SetTitle("z [#mum]");
 
-  DM = new TH3I( "DM", "DM", nx, 0, CellX, ny, 0, CellY, nz, 0, CellZ );
+  DM = new TH3I( "DM", "DM_0", nx, 0, CellX, ny, 0, CellY, nz, 0, CellZ );
   DM->GetXaxis()->SetTitle("x [#mum]");
   DM->GetYaxis()->SetTitle("y [#mum]");
   DM->GetZaxis()->SetTitle("z [#mum]");
 
 }
 
-
-void KPixel::SetUpPixel( Int_t i, Float_t posX, Float_t posY, Float_t WX, Float_t WY, Float_t Depth, Short_t Weight )
+//------------------------------------------------------------------------------
+void KPixel::SetUpPixel( Int_t i, Float_t posX, Float_t posY, Float_t WX, Float_t WY,
+			 Float_t Depth, Short_t Weight )
 {
   if( i < 0 || i >= nPix ) {
-    std::cout << "KPixel::SetUpPixel wrong index " << i << " (must be 0 < " << nPix << std::endl;
+    std::cout << "KPixel::SetUpPixel wrong index " << i
+	      << " (must be 0 < " << nPix << ")"
+	      << std::endl;
     return;
   }
   PSx[i] = posX;
@@ -77,17 +82,19 @@ void KPixel::SetUpPixel( Int_t i, Float_t posX, Float_t posY, Float_t WX, Float_
   PSW[i] = Weight;
 }
 
-
+//------------------------------------------------------------------------------
 void KPixel::SetPixelW( Int_t i, Short_t Weight )
 {
   if( i < 0 || i >= nPix ) {
-    std::cout << "KPixel::SetUpPixel wrong index " << i << " (must be 0 < " << nPix << std::endl;
+    std::cout << "KPixel::SetPixelW wrong index " << i
+	      << " (must be 0 < " << nPix << ")"
+	      << std::endl;
     return;
   }
   PSW[i] = Weight;
 }
 
-
+//------------------------------------------------------------------------------
 void KPixel::SetUpElectrodes( Int_t Material )
 {
   for( Int_t k = 1;k <= nz; ++k )

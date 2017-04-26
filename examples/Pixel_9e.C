@@ -1,13 +1,15 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_9.C
+// .x Pixelee_9.C
 // .ls
 
+// calculate E-field for 3x3 pixels (slow)
 {
   KPixel * det = new KPixel( 9, 3*150, 3*100, 300 ); // 9 pixels, [um]
 
-  det->SetUpVolume( 3, 3, 3 ); // um cubes (speed vs granularity)
+  det->SetUpVolume( 5, 5, 5 ); // um cubes (speed vs granularity)
+  //det->SetUpVolume( 3, 3, 3 ); // um cubes (speed vs granularity)
 
   //Bit 1 = 1 -> GND - 0 V bias
   //Bit 2 = 2 -> Voltage (usual bias voltage)
@@ -39,15 +41,15 @@
   det->SetUpPixel( 7, 1.5*150,  2.5*100, 65, 40, 1, 1 );
   det->SetUpPixel( 8, 2.5*150,  2.5*100, 65, 40, 1, 1 );
 
-  int vbias = 200;
-  det->Voltage = -vbias;
+  int abias = 200;
+  det->Voltage = -abias;
 
   det->SetUpElectrodes(); // in KPixel
   det->SetBoundaryConditions(); // in KGeometry
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]", 0, 3000, 0, 3000, 0, 3000 );
-  //f2->SetParameter( 0, -2 );
-  f2->SetParameter( 0, 0 );
+  f2->SetParameter( 0, 1 ); // n-in-n doping [1/um^3]
+  //f2->SetParameter( 0, 0 ); // no doping
   det->NeffF = f2;
 
   det->CalField(0); // E-field, in KDetector
@@ -63,7 +65,7 @@
   }
 
   Char_t str[100];
-  sprintf( str, "Px9_V%i", vbias );
+  sprintf( str, "Px9_V%i", abias );
   det->Save( str, "px9.root" );
 
   // track:

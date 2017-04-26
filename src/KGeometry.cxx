@@ -2,69 +2,68 @@
 #include "KGeometry.h"
 #include "TMath.h"
 #include "math.h"
+#include <iostream> // cout
 
 ClassImp(KGeometry)
 
+//------------------------------------------------------------------------------
 KGeometry::KGeometry()
 {
-  EG=NULL;
-  DM=NULL;
-  nx=1;
-  ny=1;
-  nz=1;
+  EG = NULL;
+  DM = NULL;
+  nx = 1;
+  ny = 1;
+  nz = 1;
 }
 
-
+//------------------------------------------------------------------------------
 KGeometry::~KGeometry()
 {
-  if(EG!=NULL) delete EG;
-  if(DM!=NULL) delete DM;
+  if( EG != NULL ) delete EG;
+  if( DM != NULL ) delete DM;
 }
 
-
-void KGeometry::GetGrid(TH3I *x, Short_t which)
+//------------------------------------------------------------------------------
+void KGeometry::GetGrid( TH3I *x, Short_t which )
 {
-  // EG grid
-  //bit 1 = 1  -> 1st electrode
-  //bit 2 = 2  -> 2nd electrode
- 
   switch(which)
     {
     case 0: 
-      if(EG!=NULL) delete EG;
-      EG=new TH3I(); x->Copy(*EG);
-      nx=EG->GetNbinsX();
-      ny=EG->GetNbinsY();
-      nz=EG->GetNbinsZ();
+      if( EG != NULL ) delete EG;
+      EG = new TH3I();
+      x->Copy(*EG);
+      nx = EG->GetNbinsX();
+      ny = EG->GetNbinsY();
+      nz = EG->GetNbinsZ();
       break;
     case 1:
-      if(DM!=NULL) delete DM;
-      DM=new TH3I(); x->Copy(*DM); 
+      if( DM != NULL ) delete DM;
+      DM = new TH3I();
+      x->Copy(*DM); 
       break;
     }
 
-  if(DM!=NULL) if(DM->GetNbinsX()!=nx) printf("Warning: dimenssions mismatch - X !\n");
-  if(DM!=NULL) if(DM->GetNbinsY()!=ny) printf("Warning: dimenssions mismatch - Y !\n");
-  if(DM!=NULL) if(DM->GetNbinsZ()!=nz) printf("Warning: dimenssions mismatch - Z !\n");
+  if( DM != NULL ) if( DM->GetNbinsX() != nx ) printf( "Warning: dimenssions mismatch - X !\n");
+  if( DM != NULL ) if( DM->GetNbinsY() != ny ) printf( "Warning: dimenssions mismatch - Y !\n");
+  if( DM != NULL ) if( DM->GetNbinsZ() != nz ) printf( "Warning: dimenssions mismatch - Z !\n");
 
-}
+} // GetGrid
 
-
-void KGeometry::Reset(Int_t Which, Int_t What)
+//------------------------------------------------------------------------------
+void KGeometry::Reset( Int_t Which, Int_t What )
 {
-  Int_t i,j,k;
-  for (k=1;k<=nz;k++)
-    for (j=1;j<=ny;j++)
-      for(i=1;i<=nx;i++) 
-	if(Which)
-	  if(EG!=NULL)
-	    EG->SetBinContent(i,j,k,What);
+  for( int k = 1; k <= nz; k++ )
+    for( int j = 1; j <= ny; j++ )
+      for( int i = 1; i <= nx; i++ )
+	if( Which )
+	  if( EG != NULL )
+	    EG->SetBinContent( i, j, k, What );
 	  else 
-	    if(DM!=NULL)
-	      DM->SetBinContent(i,j,k,What);   
+	    if( DM != NULL )
+	      DM->SetBinContent( i, j, k, What );
 }
 
-
+//------------------------------------------------------------------------------
 Int_t KGeometry::SetBoundaryConditions()
 {
   Int_t i,j,k,val,cval,nval;
@@ -157,11 +156,12 @@ Int_t KGeometry::SetBoundaryConditions()
   }
 
   return 0;
-}
+
+} // SetBoundaryConditions
 
 //------------------------------------------------------------------------------
 // map NR vector x into 3D field
-TH3F *KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
+TH3F * KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
 {
   TH3F *fhis = new TH3F();
   EG->Copy(*fhis);
@@ -186,7 +186,7 @@ TH3F *KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
   return fhis;
 }
 
-
+//------------------------------------------------------------------------------
 Double_t KGeometry::GetStepSize(Int_t dir, Int_t i)
 {
   Double_t Lo,Hi;
@@ -213,6 +213,7 @@ Double_t KGeometry::GetStepSize(Int_t dir, Int_t i)
   return ret;
 }
 
+//------------------------------------------------------------------------------
 Double_t KGeometry::GetStepSize(Int_t dir, Float_t x)
 {
   Int_t bin;
@@ -234,7 +235,7 @@ Double_t KGeometry::GetStepSize(Int_t dir, Float_t x)
   return GetStepSize(dir, bin);
 }
 
-
+//------------------------------------------------------------------------------
 Float_t KGeometry::GetLowEdge(Int_t dir)
 {
   Float_t ret=0;
@@ -248,7 +249,7 @@ Float_t KGeometry::GetLowEdge(Int_t dir)
   return ret;
 }
 
-
+//------------------------------------------------------------------------------
 Float_t KGeometry::GetUpEdge(Int_t dir)
 {
   Float_t ret=0;
@@ -262,7 +263,7 @@ Float_t KGeometry::GetUpEdge(Int_t dir)
   return ret;
 }
 
-
+//------------------------------------------------------------------------------
 void KGeometry::ElLine(Float_t *r0,Float_t *r1, Float_t *W, Int_t Wei, Int_t Mat)
 {
   Int_t i,j,q,k,Bx,By,Bz;
@@ -291,7 +292,7 @@ void KGeometry::ElLine(Float_t *r0,Float_t *r1, Float_t *W, Int_t Wei, Int_t Mat
   }
 }
 
-
+//------------------------------------------------------------------------------
 void KGeometry::ElRectangle(Float_t *Pos, Float_t *Size, Int_t Wei, Int_t Mat)
 {
   // Sets Up 
@@ -317,7 +318,7 @@ void KGeometry::ElRectangle(Float_t *Pos, Float_t *Size, Int_t Wei, Int_t Mat)
       }
 }
 
-
+//------------------------------------------------------------------------------
 void KGeometry::ElCylinder(Float_t *Pos,Float_t R, Float_t L,Int_t O, Int_t Wei, Int_t Mat)
 {
   // Cylindrical electrode 
@@ -345,17 +346,26 @@ void KGeometry::ElCylinder(Float_t *Pos,Float_t R, Float_t L,Int_t O, Int_t Wei,
 	if( D <= 0 ) {
 	  switch(O)
 	    {
-	    case 3:   Dist=EG->GetZaxis()->GetBinCenter(k); 
-	      Bu=Pos[2]+L; Bd=Pos[2]-L; break;
-	    case 2:   Dist=EG->GetYaxis()->GetBinCenter(j); 
-	      Bu=Pos[1]+L; Bd=Pos[1]-L; break;
-	    case 1:   Dist=EG->GetXaxis()->GetBinCenter(i); 
-	      Bu=Pos[0]+L; Bd=Pos[0]-L; break;
+	    case 3:
+	      Dist=EG->GetZaxis()->GetBinCenter(k); 
+	      Bu=Pos[2]+L;
+	      Bd=Pos[2]-L;
+	      break;
+	    case 2:
+	      Dist=EG->GetYaxis()->GetBinCenter(j); 
+	      Bu=Pos[1]+L;
+	      Bd=Pos[1]-L;
+	      break;
+	    case 1:
+	      Dist=EG->GetXaxis()->GetBinCenter(i); 
+	      Bu=Pos[0]+L;
+	      Bd=Pos[0]-L;
+	      break;
 	    }
 
-	  if(Dist<=Bu && Dist>=Bd) {
-	    if(EG!=NULL) EG->SetBinContent(i,j,k,Wei); 
-	    if(DM!=NULL) DM->SetBinContent(i,j,k,Mat);
+	  if( Dist <= Bu && Dist >= Bd) {
+	    if( EG != NULL ) EG->SetBinContent( i, j, k, Wei ); 
+	    if( DM != NULL ) DM->SetBinContent( i, j, k, Mat );
 	  }
 
 	}
@@ -363,80 +373,18 @@ void KGeometry::ElCylinder(Float_t *Pos,Float_t R, Float_t L,Int_t O, Int_t Wei,
       }
 }
 
-
-TH2F *KHisProject( void *hisIn, Int_t axis, Int_t Bin1 )
-{ 
-  //Projects any quantity maped to geometry in different views
-  Int_t i;
-  TH2F *his2D;
-  TH3F *his=(TH3F *) hisIn;
-
-  Int_t Nx=his->GetNbinsX();
-  Int_t Ny=his->GetNbinsY();
-  Int_t Nz=his->GetNbinsZ();
-
-  Double_t *Xbins=new Double_t [Nx+1];
-  Double_t *Ybins=new Double_t [Ny+1];;
-  Double_t *Zbins=new Double_t [Nz+1];;
-
-  //  printf("%d %d %d\n", Nx,Ny,Nz);
-  for(i=0;i<=Nx;i++) 
-    {
-      Xbins[i]=his->GetXaxis()->GetBinLowEdge(i+1);
-      //   printf("x:: %d %f\n",i,Xbins[i]);
-    }
-  for(i=0;i<=Ny;i++) 
-    {
-      Ybins[i]=his->GetYaxis()->GetBinLowEdge(i+1);
-      //   printf("x:: %d %f\n",i,Ybins[i]);
-    }
-
-  for(i=0;i<=Nz;i++) 
-    {
-      Zbins[i]=his->GetZaxis()->GetBinLowEdge(i+1);
-      //    printf("x:: %d %f\n",i,Zbins[i]);
-    }
-
-  switch(axis)
-    {
-    case 1:
-      his2D=new TH2F("YZ plane","YZ",Ny,Ybins,Nz,Zbins);
-      for(int i=1;i<=Ny;i++)
-	for(int j=1;j<=Nz;j++)
-	  his2D->SetBinContent(i,j,his->GetBinContent(Bin1,i,j));
-      his2D->GetXaxis()->SetTitle("y [#mum]");
-      his2D->GetYaxis()->SetTitle("z [#mum]");
-      break;
-    case 2:
-      his2D=new TH2F("XZ plane","XZ",Nx,Xbins,Nz,Zbins);
-      for(int i=1;i<=Nx;i++)
-	for(int j=1;j<=Nz;j++)
-	  his2D->SetBinContent(i,j,his->GetBinContent(i,Bin1,j));
-      his2D->GetXaxis()->SetTitle("x [#mum]");
-      his2D->GetYaxis()->SetTitle("z [#mum]");
-      break;
-    case 3:
-      his2D=new TH2F("XY plane","XY",Nx,Xbins,Ny,Ybins);
-      for(int i=1;i<=Nx;i++)
-	for(int j=1;j<=Ny;j++)
-	  his2D->SetBinContent(i,j,his->GetBinContent(i,j,Bin1));
-      his2D->GetXaxis()->SetTitle("x [#mum]");
-      his2D->GetYaxis()->SetTitle("y [#mum]");
-      break;
-    }
-  return his2D;
-}
-
-
-TH3F *KGeometry::GetGeom()
+//------------------------------------------------------------------------------
+TH3F * KGeometry::GetGeom()
 {
   TH3F * dhis = new TH3F();
 
   EG->Copy(*dhis);
+  dhis->SetName( Form( "%s_%i", EG->GetName(), GetNhs() ) );
+  dhis->SetTitle( "electrode geometry" );
 
   for( int k = 1; k <= nz; k++ )
-    for( int j = 1;j <= ny; j++ )
-      for( int i = 1;i <= nx; i++ ) {
+    for( int j = 1; j <= ny; j++ )
+      for( int i = 1; i <= nx; i++ ) {
 	int bin = dhis->GetBinContent(i,j,k);
 	int col = 0;
 	if( bin > 32768 ) col = 1; 
@@ -447,3 +395,81 @@ TH3F *KGeometry::GetGeom()
   //  dhis->Draw("glbox");
   return dhis;
 }
+
+//------------------------------------------------------------------------------
+TH2F * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
+{
+  //Projects any quantity maped to geometry in different views
+
+  TH3F * his = (TH3F *) hisIn;
+
+  Int_t Nx = his->GetNbinsX();
+  Int_t Ny = his->GetNbinsY();
+  Int_t Nz = his->GetNbinsZ();
+
+  Double_t *Xbins=new Double_t [Nx+1];
+  Double_t *Ybins=new Double_t [Ny+1];;
+  Double_t *Zbins=new Double_t [Nz+1];;
+
+  //  printf("%d %d %d\n", Nx,Ny,Nz);
+  for(int i = 0; i <= Nx; i++ ) {
+    Xbins[i] = his->GetXaxis()->GetBinLowEdge(i+1);
+    //   printf("x:: %d %f\n",i,Xbins[i]);
+  }
+  for(int i = 0; i <= Ny; i++ ) {
+    Ybins[i] = his->GetYaxis()->GetBinLowEdge(i+1);
+    //   printf("x:: %d %f\n",i,Ybins[i]);
+  }
+
+  for( int i = 0; i <= Nz; i++ ) {
+    Zbins[i] = his->GetZaxis()->GetBinLowEdge(i+1);
+    //    printf("x:: %d %f\n",i,Zbins[i]);
+  }
+
+  TH2F *his2D;
+  switch(axis)
+    {
+    case 1:
+      his2D = new TH2F( Form( "YZ_%i", GetNhs() ),
+			Form( "YZ plane at x %f", his->GetXaxis()->GetBinCenter(Bin1) ),
+			Ny, Ybins, Nz, Zbins );
+      for( int i = 1; i <= Ny; i++ )
+	for( int j = 1; j <= Nz; j++ )
+	  his2D->SetBinContent( i, j, his->GetBinContent(Bin1,i,j) );
+      his2D->GetXaxis()->SetTitle("y [#mum]");
+      his2D->GetYaxis()->SetTitle("z [#mum]");
+      break;
+    case 2:
+      his2D = new TH2F( Form( "XZ_%i", GetNhs() ),
+			Form( "XZ plane at y %f", his->GetYaxis()->GetBinCenter(Bin1) ),
+			Nx, Xbins, Nz, Zbins );
+      for( int i = 1; i <= Nx; i++ )
+	for( int j = 1;j <= Nz; j++ )
+	  his2D->SetBinContent( i, j, his->GetBinContent(i,Bin1,j) );
+      his2D->GetXaxis()->SetTitle("x [#mum]");
+      his2D->GetYaxis()->SetTitle("z [#mum]");
+      break;
+    case 3:
+      his2D = new TH2F( Form( "XY_%i", GetNhs() ),
+			Form( "XY plane at z %f", his->GetZaxis()->GetBinCenter(Bin1) ),
+			Nx, Xbins, Ny, Ybins );
+      for( int i = 1; i <= Nx; i++ )
+	for( int j = 1; j <= Ny; j++ )
+	  his2D->SetBinContent( i, j, his->GetBinContent(i,j,Bin1) );
+      his2D->GetXaxis()->SetTitle("x [#mum]");
+      his2D->GetYaxis()->SetTitle("y [#mum]");
+      break;
+    }
+
+  return his2D;
+
+} // KHisProject
+
+//------------------------------------------------------------------------------
+int GetNhs()
+{
+  static int nhs{0};
+  ++nhs;
+  std::cout << "  nhs " << nhs << std::endl;
+  return nhs;
+};

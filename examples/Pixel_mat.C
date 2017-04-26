@@ -11,7 +11,7 @@
   det->SetBoundaryConditions();
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]", 0, 3000, 0, 3000, 0, 3000 );
-  f2->SetParameter( 0, 0 ); // no doping
+  f2->SetParameter( 0, 0 ); // no doping [1/um^3]
   det->NeffF = f2;
 
   for( k=1; k<=det->nz; k++ )

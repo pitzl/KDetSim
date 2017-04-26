@@ -1,9 +1,7 @@
 
 #include "KField.h"
 #include "KGeometry.h"
-#include "TFile.h"
 #include <iostream> // cout
-
 
 // Float_t KInterpolate2D(TH3F *his, Float_t x,Float_t y)
 // {
@@ -43,15 +41,15 @@ Float_t KInterpolate2D( TH3F *his, Float_t x, Float_t y, Int_t dir, Int_t bin )
   Float_t v11,v21,v22,v12;
 
   ret=0;
-      
+
   switch(dir)
     {
     case 3: ax1=his->GetXaxis(); ax2=his->GetYaxis(); break;
     case 2: ax1=his->GetXaxis(); ax2=his->GetZaxis(); break;
     case 1: ax1=his->GetYaxis(); ax2=his->GetZaxis(); break;
     }
-  
-  EX1=ax1->FindBin(x); 
+
+  EX1=ax1->FindBin(x);
   if(ax1->GetBinCenter(EX1)<=x)
     EX2 = EX1+1;
   else {
@@ -76,7 +74,7 @@ Float_t KInterpolate2D( TH3F *his, Float_t x, Float_t y, Int_t dir, Int_t bin )
       EY1=1;
     }
     else
-      u=(y-ax2->GetBinCenter(EY1))/(ax2->GetBinCenter(EY2)-ax2->GetBinCenter(EY1));		
+      u=(y-ax2->GetBinCenter(EY1))/(ax2->GetBinCenter(EY2)-ax2->GetBinCenter(EY1));
 
   if(EX2>ax1->GetNbins()) {
     t=0;
@@ -87,22 +85,22 @@ Float_t KInterpolate2D( TH3F *his, Float_t x, Float_t y, Int_t dir, Int_t bin )
       t=0;
       EX1=1;
     }
-    else  
+    else
       t=(x-ax1->GetBinCenter(EX1))/(ax1->GetBinCenter(EX2)-ax1->GetBinCenter(EX1));
 
   //     printf("Points are:: %d %d %d %d [dir=%d, bin=%d] (t=%f u=%f)\n",EX1,EX2,EY1,EY2, dir, bin, t,u);
 
   switch(dir)
     {
-    case 3: 
+    case 3:
       v11=his->GetBinContent(EX1,EY1,bin); v21=his->GetBinContent(EX2,EY1,bin);
       v22=his->GetBinContent(EX2,EY2,bin); v12=his->GetBinContent(EX1,EY2,bin);
       break;
-    case 2: 
+    case 2:
       v11=his->GetBinContent(EX1,bin,EY1); v21=his->GetBinContent(EX2,bin,EY1);
       v22=his->GetBinContent(EX2,bin,EY2); v12=his->GetBinContent(EX1,bin,EY2);
       break;
-    case 1: 
+    case 1:
       v11=his->GetBinContent(bin,EX1,EY1); v21=his->GetBinContent(bin,EX2,EY1);
       v22=his->GetBinContent(bin,EX2,EY2); v12=his->GetBinContent(bin,EX1,EY2);
       break;
@@ -127,21 +125,21 @@ Float_t KField::GetFieldPoint( Float_t *X, Float_t *Y )
   return 2*a*X[1] + b;
 }
 
-
+//------------------------------------------------------------------------------
 Int_t KField::CalField()
 {
   Float_t X[3],Y[3],EE;
-  
+
   if( U == NULL ) {
-    printf("Cannot calculate field - no potential array!");
+    printf( "Cannot calculate field - no potential array!\n" );
     return -1;
   };
-   
-  Int_t nx = U->GetNbinsX();
-  Int_t ny = U->GetNbinsY();
-  Int_t nz = U->GetNbinsZ();
 
-  if( nz == 1 ) {
+  Int_t Nx = U->GetNbinsX();
+  Int_t Ny = U->GetNbinsY();
+  Int_t Nz = U->GetNbinsZ();
+
+  if( Nz == 1 ) {
     printf("2D field!\n");
     dim = 2;
   }
@@ -151,24 +149,28 @@ Int_t KField::CalField()
   Ex = new TH3F();
   U->Copy(*Ex);
   Ex->Reset();
+  //Ex->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
   Ey = new TH3F();
   U->Copy(*Ey);
   Ey->Reset();
+  //Ey->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
   Ez = new TH3F();
   U->Copy(*Ez);
   Ez->Reset();
+  //Ez->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
   E = new TH3F();
   U->Copy(*E);
   E->Reset();
+  //E->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
-  for( int k = 1; k <= nz; ++k )
-    for( int j = 1; j <= ny; ++j )
-      for( int i = 1; i <= nx; ++i ) {
+  for( int k = 1; k <= Nz; ++k )
+    for( int j = 1; j <= Ny; ++j )
+      for( int i = 1; i <= Nx; ++i ) {
 
-	if( i==1 || i==nx )
+	if( i==1 || i==Nx )
 	  Ex->SetBinContent( i, j, k, 0 );
 	else {
 	  for( int q = 0; q <= 2; ++q ) {
@@ -178,7 +180,7 @@ Int_t KField::CalField()
 	  Ex->SetBinContent( i, j, k, GetFieldPoint(X,Y) );
 	}
 
-	if( j==1 || j==ny )
+	if( j==1 || j==Ny )
 	  Ey->SetBinContent( i, j, k, 0 ); // periodic boundary conditions?
 	else {
 	  for( int q = 0; q <= 2; ++q ) {
@@ -188,7 +190,7 @@ Int_t KField::CalField()
 	  Ey->SetBinContent( i, j, k, GetFieldPoint(X,Y) );
 	}
 
-	if( k==1 || k==nz )
+	if( k==1 || k==Nz )
 	  Ez->SetBinContent( i, j, k, 0 );
 	else {
 	  for( int q = 0; q <= 2; ++q ) {
@@ -204,12 +206,25 @@ Int_t KField::CalField()
 	E->SetBinContent(i,j,k,EE);
 
       }
-
+  /*
+  std::cout << "  made Ex named " << Ex->GetName()
+	    << " titled " << Ex->GetTitle()
+	    << std::endl;
+  std::cout << "  made Ey named " << Ey->GetName()
+	    << " titled " << Ey->GetTitle()
+	    << std::endl;
+  std::cout << "  made Ez named " << Ez->GetName()
+	    << " titled " << Ez->GetTitle()
+	    << std::endl;
+  std::cout << "  made E named " << E->GetName()
+	    << " titled " << E->GetTitle()
+	    << std::endl;
+  */
   return 0;
 
 } // CalField
 
-
+//------------------------------------------------------------------------------
 void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
 {
   if( dim == 2 ) {
@@ -219,9 +234,9 @@ void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
   }
   else {
 
-    Int_t nx = Ez->GetXaxis()->GetNbins(); 
-    Int_t ny = Ez->GetYaxis()->GetNbins(); 
-    Int_t nz = Ez->GetZaxis()->GetNbins(); 
+    Int_t Nx = Ez->GetXaxis()->GetNbins(); 
+    Int_t Ny = Ez->GetYaxis()->GetNbins(); 
+    Int_t Nz = Ez->GetZaxis()->GetNbins(); 
 
     if( Ez->GetZaxis()->FindBin(z) <= 1 ) {
       E[1] = KInterpolate2D( Ex, x, y, 3, 1 );
@@ -229,10 +244,10 @@ void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
       E[3] = KInterpolate2D( Ez, x, y, 3, 1 );
     }
 
-    else if( Ez->GetZaxis()->FindBin(z) >= nz ) {
-      E[1] = KInterpolate2D( Ex, x, y, 3, nz );
-      E[2] = KInterpolate2D( Ey, x, y, 3, nz );
-      E[3] = KInterpolate2D( Ez, x, y, 3, nz );
+    else if( Ez->GetZaxis()->FindBin(z) >= Nz ) {
+      E[1] = KInterpolate2D( Ex, x, y, 3, Nz );
+      E[2] = KInterpolate2D( Ey, x, y, 3, Nz );
+      E[3] = KInterpolate2D( Ez, x, y, 3, Nz );
     }
 
     else if( Ez->GetYaxis()->FindBin(y) <= 1 ) {
@@ -241,10 +256,10 @@ void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
       E[3] = KInterpolate2D( Ez, x, z, 2, 1 );
     }
 
-    else if( Ez->GetYaxis()->FindBin(y) >= ny ) {
-      E[1] = KInterpolate2D( Ex, x, z, 2, ny );
-      E[2] = KInterpolate2D( Ey, x, z, 2, ny );
-      E[3] = KInterpolate2D( Ez, x, z, 2, ny );
+    else if( Ez->GetYaxis()->FindBin(y) >= Ny ) {
+      E[1] = KInterpolate2D( Ex, x, z, 2, Ny );
+      E[2] = KInterpolate2D( Ey, x, z, 2, Ny );
+      E[3] = KInterpolate2D( Ez, x, z, 2, Ny );
     }
 
     else if( Ez->GetXaxis()->FindBin(x) <= 1 ) {
@@ -253,10 +268,10 @@ void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
       E[3] = KInterpolate2D( Ez, y, z, 1, 1 );
     }
 
-    else if( Ez->GetXaxis()->FindBin(x) >= nx ) {
-      E[1] = KInterpolate2D( Ex, y, z, 1, nx );
-      E[2] = KInterpolate2D( Ey, y, z, 1, nx );
-      E[3] = KInterpolate2D( Ez, y, z, 1, nx );
+    else if( Ez->GetXaxis()->FindBin(x) >= Nx ) {
+      E[1] = KInterpolate2D( Ex, y, z, 1, Nx );
+      E[2] = KInterpolate2D( Ey, y, z, 1, Nx );
+      E[3] = KInterpolate2D( Ez, y, z, 1, Nx );
     }
 
     else {
@@ -272,27 +287,37 @@ void  KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z, Float_t *E )
 } // CalFieldXYZ
 
 //------------------------------------------------------------------------------
+TVector3 * KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z )
+{
+  Float_t E[4];
+  CalFieldXYZ( x, y, z, E ); 
+  TVector3 * vec = new TVector3( E[1], E[2], E[3] ); // memory leak?
+  return vec;
+  delete vec;
+}
+
+//------------------------------------------------------------------------------
 Float_t KField::CalPotXYZ(Float_t x, Float_t y, Float_t z)
 {
-  Float_t ret=0;
+  Float_t ret = 0;
 
   if( dim == 2 )
     ret = KInterpolate2D(U,x,y);
 
   else {
 
-    Int_t nz = U->GetZaxis()->GetNbins(); 
-    Int_t ny = U->GetYaxis()->GetNbins(); 
-    Int_t nx = U->GetXaxis()->GetNbins(); 
+    Int_t Nz = U->GetZaxis()->GetNbins(); 
+    Int_t Ny = U->GetYaxis()->GetNbins(); 
+    Int_t Nx = U->GetXaxis()->GetNbins(); 
 
-    if( z >= U->GetZaxis()->GetBinCenter(nz) )
-      ret = KInterpolate2D( U, x, y, 3, nz );
+    if( z >= U->GetZaxis()->GetBinCenter(Nz) )
+      ret = KInterpolate2D( U, x, y, 3, Nz );
 
-    else if( y >= U->GetYaxis()->GetBinCenter(ny) )
-      ret = KInterpolate2D( U, x, z, 2, ny );
+    else if( y >= U->GetYaxis()->GetBinCenter(Ny) )
+      ret = KInterpolate2D( U, x, z, 2, Ny );
 
-    else if( x >= U->GetXaxis()->GetBinCenter(nx) )
-      ret = KInterpolate2D( U, y, z, 1, nx );
+    else if( x >= U->GetXaxis()->GetBinCenter(Nx) )
+      ret = KInterpolate2D( U, y, z, 1, Nx );
 
     else if( z <= U->GetZaxis()->GetBinCenter(1)  )
       ret = KInterpolate2D( U, x, y, 3, 1 );
@@ -313,33 +338,35 @@ Float_t KField::CalPotXYZ(Float_t x, Float_t y, Float_t z)
 } // CalPotXYZ
 
 //------------------------------------------------------------------------------
-Float_t KField::DriftVelocity(Float_t E,Float_t Charg, Float_t T, Double_t Neff, Int_t which)
+Float_t KField::DriftVelocity( Float_t E, Float_t Charg, Float_t T, Double_t Neff, Int_t which )
 {
-  E *= 1e4;
+  E *= 1e4; // [V/cm]
   return( (float) ( Mobility( E, T, Charg, Neff, which ) * E ) );
 }
 
 //------------------------------------------------------------------------------
-Float_t KField::DriftVelocity(Float_t cx,Float_t cy,Float_t cz, Float_t Charg, Float_t T, Double_t Neff, Int_t which)
+Float_t KField::DriftVelocity( Float_t cx, Float_t cy, Float_t cz, Float_t Charg,
+			       Float_t T, Double_t Neff, Int_t which )
 {
   Float_t E[4];
   CalFieldXYZ(cx,cy,cz,E);
-  E[0]*=1e4; 
+  E[0] *= 1e4; // [V/cm]
 
-  return((float) (Mobility(E[0],T,Charg,Neff,which)*(Double_t)E[0])); 
+  return((float) ( Mobility( E[0], T, Charg, Neff, which ) * (Double_t) E[0]) ); 
 }
 
 //------------------------------------------------------------------------------
-Double_t KField::Mobility(Float_t cx,Float_t cy,Float_t cz,Float_t T,Float_t Charg,Double_t Neff, Int_t which)
+Double_t KField::Mobility( Float_t cx, Float_t cy, Float_t cz, Float_t T,
+			   Float_t Charg, Double_t Neff, Int_t which )
 {
   Float_t E[3];
   CalFieldXYZ(cx,cy,cz,E);
   E[0]*=1e4; 
-  return(Mobility(E[0],T,Charg,Neff,which));
+  return( Mobility( E[0], T, Charg, Neff, which ) );
 }
 
 //------------------------------------------------------------------------------
-Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t which)
+Double_t KField::Mobility( Float_t E, Float_t T, Float_t Charg, Double_t Neff, Int_t which )
 {
   Double_t lfm=0,hfm=0;
   Double_t vsatn,vsatp,vsat;
@@ -348,12 +375,12 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
 
   switch(which)
     {
-    case 0:       
+    case 0:
       alpha=0.72*TMath::Power(T/300,0.065);
       if(Charg>0)
 	{
 	  Double_t ulp=460*TMath::Power(T/300,-2.18);
-	  Double_t uminp=45*TMath::Power(T/300,-0.45);      
+	  Double_t uminp=45*TMath::Power(T/300,-0.45);
 	  Double_t Crefp=2.23e17*TMath::Power(T/300,3.2);
 	  betap=1;
 	  vsatp=9.05e6*TMath::Sqrt(TMath::TanH(312/T));
@@ -362,10 +389,10 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
 	}
       else
 	{
-	  Double_t uln=1430*TMath::Power(T/300,-2); 
+	  Double_t uln=1430*TMath::Power(T/300,-2);
 	  Double_t uminn=80*TMath::Power(T/300,-0.45);
 	  Double_t Crefn=1.12e17*TMath::Power(T/300,3.2);
-	  betan=2;      
+	  betan=2;
 	  vsatn=1.45e7*TMath::Sqrt(TMath::TanH(155/T));
 	  lfm=uminn+(uln-uminn)/(1+TMath::Power(Neff/Crefn,alpha));
 	  hfm=2*lfm/(1+TMath::Power(1+TMath::Power(2*lfm*E/vsatn,betan),1/betan));
@@ -387,7 +414,7 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
 	  betan=-8.262e-8*TMath::Power(T,3)+6.817e-5*TMath::Power(T,2)-1.847e-2*T+2.429;
 	  hfm=lfm/TMath::Power(1+TMath::Power(lfm*E/vsatn,1/betan),betan);
 	}
-      break; 
+      break;
     case 2:   // WF2
       if(Charg>0)
 	{
@@ -403,8 +430,8 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
 	  betan=0.5;
 	  hfm=lfm/TMath::Power(1+TMath::Power(lfm*E/vsatn,1/betan),betan);
 	}
-      break; 
-    case 3:  // Klanner Scharf
+      break;
+    case 3: // Klanner Scharf
       Double_t bb,cc,E0;
 
       if(Charg>0)
@@ -423,15 +450,15 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
 	  if(E>E0) hfm=1./(1/lfm+1/vsatn*(E-E0)); else hfm=lfm;
 	}
       break;
-    case 4:   //Jacoboni
+    case 4:   // Jacoboni
       if (Charg>0)
 	{
 	  lfm = 474 * TMath::Power(T/300., -2.619);
 	  vsatp = 0.940e7  * TMath::Power(T/300., -0.226);
 	  betap = 1.181 * TMath::Power(T/300., 0.633 ); // <100> orientation
 	  hfm=lfm/TMath::Power(1+TMath::Power(lfm*E/vsatp,betap),1/betap);
-	} 
-      else 
+	}
+      else
 	{
 	  lfm = 1440*  TMath::Power(T/300., -2.260);
 	  vsatn = 1.054e7  *  TMath::Power(T/300., -0.602);
@@ -447,32 +474,24 @@ Double_t KField::Mobility(Float_t E,Float_t T,Float_t Charg,Double_t Neff, Int_t
       hfm=lfm/(1+(lfm*E)/vsat);
       break;
     }
-  return hfm; 
+  return hfm;
 
 } // Mobility
 
 //------------------------------------------------------------------------------
-TH2F *KField::Draw(Char_t *opt,Int_t b1, Int_t b2)
+TH2F *KField::Draw( Char_t *opt, Int_t b1, Int_t b2 )
 {
-  TH2F *ret=NULL;
-  if(!strcmp("U",opt)) ret=KHisProject(U,b1,b2);
-  if(!strcmp("E",opt)) ret=KHisProject(E,b1,b2);
-  if(!strcmp("X",opt)) ret=KHisProject(Ex,b1,b2);
-  if(!strcmp("Y",opt)) ret=KHisProject(Ey,b1,b2);
-  if(!strcmp("Z",opt)) ret=KHisProject(Ez,b1,b2);
+  TH2F *ret = NULL;
+  if( !strcmp( "U", opt ) ) ret = KHisProject( U,  b1, b2 );
+  if( !strcmp( "E", opt ) ) ret = KHisProject( E,  b1, b2 );
+  if( !strcmp( "X", opt ) ) ret = KHisProject( Ex, b1, b2 );
+  if( !strcmp( "Y", opt ) ) ret = KHisProject( Ey, b1, b2 );
+  if( !strcmp( "Z", opt ) ) ret = KHisProject( Ez, b1, b2 );
   return ret;
 }
 
 //------------------------------------------------------------------------------
-TVector3 *KField::CalFieldXYZ(Float_t x, Float_t y, Float_t z)
-{
-  Float_t E[4];
-  CalFieldXYZ( x, y, z, E ); 
-  TVector3 * vec = new TVector3( E[1], E[2], E[3] );
-  return vec;
-}
-
-//------------------------------------------------------------------------------
+// multiplication
 Float_t KField::M( Int_t dir, Float_t a1, Float_t a2, Float_t a3 )
 {
   //http://www.iue.tuwien.ac.at/phd/park/node36.html

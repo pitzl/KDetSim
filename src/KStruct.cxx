@@ -25,7 +25,14 @@ void KStruct::Clear()
 //------------------------------------------------------------------------------
 KStruct::KStruct()
 {
+  //std::cout << " KStruct" << std::endl;
   Clear();
+}
+
+//------------------------------------------------------------------------------
+KStruct:: ~KStruct()
+{
+  //std::cout << "~KStruct" << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -61,16 +68,19 @@ void KStruct::Draw(Char_t *option)
 //------------------------------------------------------------------------------
 void KStruct::GetCH( TH1F *histo, Int_t Update, Float_t Mult, Float_t tau )
 {
-  //   Float_t tau;  trapping time [s]
+  // Float_t tau;  trapping time [ns]
 
   TH1F * his = new TH1F( "ch", "Charge Histogram",
-			 histo->GetNbinsX(), histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax() );
+			 histo->GetNbinsX(),
+			 histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax() );
 
-  Double_t *ch = new Double_t[Steps+1];
+  Double_t * ch = new Double_t[Steps+1];
 
-  Axis_t *ti = new Axis_t[Steps+1];
+  Axis_t * ti = new Axis_t[Steps+1];
 
-  for( Int_t i = 1; i < Steps+1;i++ ) {
+  //std::cout << "KStruct::GetCH at " << ch << std::endl;
+
+  for( Int_t i = 1; i < Steps+1; ++i ) {
     ch[i] = Charge[i];
     ti[i] = Time[i];
   }
@@ -82,7 +92,8 @@ void KStruct::GetCH( TH1F *histo, Int_t Update, Float_t Mult, Float_t tau )
 
   if( tau > 0 )
     for( Int_t i = 1; i < his->GetNbinsX(); i++ ) 
-      his->SetBinContent( i, his->GetBinContent(i) * TMath::Exp( -( his->GetBinCenter(i) - Time[0] ) / tau) );
+      his->SetBinContent( i, his->GetBinContent(i) *
+			  TMath::Exp( -( his->GetBinCenter(i) - Time[0] ) / tau ) );
 
   if( Update ) {
     his->Scale(Mult);

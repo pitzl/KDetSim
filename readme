@@ -25,9 +25,33 @@ gSystem->Load( "/home/YOU/KDetSim/lib/KDetSim.sl" );
 
 --------------------------------------------------------------------------------
 unit: um
-signal: one e per segment
+field unit: V/um
+signal: one e per track segment
 
 --------------------------------------------------------------------------------
 extension (Daniel Pitzl, DESY)
 multiple readout nodes: up to 99 (for multi-pixel detector)
 	 (multiple Ramo potentials, see TestPixel_2 or TestPixel_9)
+
+--------------------------------------------------------------------------------
+if you add a new function (outside an existing class), or a new class,
+it must be registered in KDetSim_LinkDef.h
+
+--------------------------------------------------------------------------------
+memory leak in KField.cxx
+
+TVector3 * KField::CalFieldXYZ( Float_t x, Float_t y, Float_t z )
+{
+  Float_t E[4];
+  CalFieldXYZ( x, y, z, E ); 
+  TVector3 * vec = new TVector3( E[1], E[2], E[3] ); // memory leak
+  return vec;
+}
+should not be used
+
+fixed in KDetector::Drift
+      use
+      Float_t EE[4];
+      Real.CalFieldXYZ( cx, cy, cz, EE ); 
+      TVector3 EV( EE[1], EE[2], EE[3] );
+      and EE[0] is like E->mag()

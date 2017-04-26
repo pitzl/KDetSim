@@ -1,11 +1,14 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_9.C
+// .x Pixel_9.C
 // .ls
+// 3x3 pixels
 
 {
   KPixel * det = new KPixel( 9, 3*150, 3*100, 300 ); // 9 pixels, [um]
+
+  // read field:
 
   Char_t str[100];
   int vbias = 200;

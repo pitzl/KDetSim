@@ -1,7 +1,7 @@
 
 // root -l
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
-// .x TestPixel_2e.C
+// .x Pixel_2e.C
 
 // draw E fields
 {
@@ -21,7 +21,7 @@
   det->SetBoundaryConditions();
 
   TF3 * f2 = new TF3( "f2", "x[0]*x[1]*x[2]*0+[0]", 0, 3000, 0, 3000, 0, 3000 );
-  f2->SetParameter( 0, 1 ); // n in n
+  f2->SetParameter( 0, 1 ); // n in n [1/um^3]
   //f2->SetParameter( 0, 0 ); // no doping
   det->NeffF = f2;
 

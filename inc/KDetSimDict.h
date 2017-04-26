@@ -33,18 +33,6 @@ extern G__DLLEXPORT void G__cpp_setupKDetSimDict();
 
 #include "TObject.h"
 #include "TMemberInspector.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KPad.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\K3D.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KPixel.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KStruct.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KDetector.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KField.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KGeometry.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KMaterial.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KStrip.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KMesh.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KImplant3D.h"
-#include "C:\\users\\Gregor\\delo\\SisDet\\inc\\KImplant2D.h"
 #include <algorithm>
 namespace std { }
 using namespace std;

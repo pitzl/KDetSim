@@ -1,3 +1,4 @@
+
 {
   gStyle->SetCanvasPreferGL(kTRUE);
   KDetector det;
@@ -45,9 +46,8 @@
   det->CalField(0);
   det->CalField(1);
 
- det->SetEntryPoint(110,250,1);
- det->SetExitPoint(120,250,49);
- det->ShowMipIR(20);
-
+  det->SetEntryPoint(110,250,1);
+  det->SetExitPoint(120,250,49);
+  det->ShowMipIR(20);
 
 }

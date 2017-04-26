@@ -26,7 +26,7 @@
 #include <string.h>
 #include "TClonesArray.h"
 #include "TObjArray.h"
-#include "TRandom.h"
+#include "TRandom3.h" // DP
 #include "TMath.h"
 #include "TLine.h"
 #include "TF3.h"
@@ -61,6 +61,8 @@ public:
   Float_t B[3];      // magnetic field
 
   // Trapping and variables used for multiplication studies
+
+  bool Landau;       // Landau fluct on/off
   Float_t taue;      // effective trapping time constants - used if Multiplication is ON
   Float_t tauh;      // effective trapping time constants - used if Multiplication is ON
 
@@ -116,12 +118,14 @@ public:
   void CalM(KStruct *seg, Double_t *data, Int_t=-1); //multiplication calculation
 
   // visualization
-  TH2F *Draw( std::string, Float_t=1);
-  TH1F *Draw1D(Char_t *, Float_t ,Int_t ,Float_t );
+  TH2F *Draw( std::string, Float_t=1 );
+  TH1F *Draw1D( std::string, Float_t ,Int_t ,Float_t );
+
   // Save,read and debug
   void  Save( Char_t *, std::string );
   TFile *Read( Char_t *, std::string );
   void  SetDebug(Short_t x) { Debug = x; };
+
   // precision of drift
   inline void  SetPrecision(Double_t x) { Deps = x; };
   inline Double_t GetPrecision() { return Deps; };

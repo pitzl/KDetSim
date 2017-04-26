@@ -1,6 +1,7 @@
 
 *~
 *.o
+*.sl
 *.root
 *.pcm
 *UX*
