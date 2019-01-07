@@ -1,0 +1,3 @@
+{
+  gStyle->SetHistFillStyle(0);
+}
