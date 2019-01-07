@@ -30,7 +30,7 @@ void KPad::SetUpVolume(Float_t St1)
   ny=(Int_t) (CellY/St1);
   nz=1;
   //Set the boundary condition matrix //
-  EG=new TH3I("EG","EG",nx,0,CellX,ny,0,CellY,1,0,1);
+  EG = new TH3I( "EG", "EG", nx, 0, CellX, ny, 0, CellY, 1, 0, 1 );
   EG->GetXaxis()->SetTitle("x [#mum]");
   EG->GetYaxis()->SetTitle("y [#mum]");
 
@@ -39,16 +39,25 @@ void KPad::SetUpVolume(Float_t St1)
   DM->GetYaxis()->SetTitle("y [#mum]");
 }
 
+
 void KPad::SetUpElectrodes()
 {
- 
- for(int i=1;i<=nx;i++){ EG->SetBinContent(i,1,1,2);  EG->SetBinContent(i,ny,1,16385);} 
- KMaterial::Mat=0;
-  //Default track
- enp[0]=CellX/2;  exp[0]=enp[0];
- enp[1]=1;        exp[1]=CellY;
- if(Neff!=NULL ) 
-   {CalField(0); CalField(1);} 
+  for( int i = 1; i <= nx; ++i ) {
+    EG->SetBinContent( i,  1, 1,     2 ); // bias
+    EG->SetBinContent( i, ny, 1, 16385 ); // readout
+  } 
+
+  KMaterial::Mat = 0; // silicon
+
+  //Default track:
+
+  enp[0]=CellX/2;  exp[0]=enp[0];
+  enp[1]=1;        exp[1]=CellY;
+
+  if( Neff != NULL ) {
+   CalField(0);
+   CalField(1);
+ } 
  else 
    printf("Please define space charge function Neff before field calculation\n");
  

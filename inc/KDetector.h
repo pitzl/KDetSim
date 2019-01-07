@@ -122,9 +122,9 @@ public:
   TH1F *Draw1D( std::string, Float_t ,Int_t ,Float_t );
 
   // Save,read and debug
-  void  Save( Char_t *, std::string );
-  TFile *Read( Char_t *, std::string );
-  void  SetDebug(Short_t x) { Debug = x; };
+  void  Save( std::string, std::string );
+  TFile *Read( std::string, std::string );
+  void  SetDebug( Short_t x ) { Debug = x; };
 
   // precision of drift
   inline void  SetPrecision(Double_t x) { Deps = x; };

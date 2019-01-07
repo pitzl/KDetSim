@@ -27,7 +27,8 @@ class KField {
  private:
   Int_t Method;   // Method to calculate the intermediate points (unused)
   Int_t dim;
- public:
+
+public:
   TH3F *U;
   TH3F *Ex;
   TH3F *Ey;

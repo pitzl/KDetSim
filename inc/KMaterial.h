@@ -15,8 +15,8 @@
 #include "TH2.h"
 #include "TF2.h"
 
-Double_t KAlpha(Double_t, Short_t, Int_t=0);
-Double_t KM(TH1D *,Float_t, Short_t=1);
+Double_t KAlpha( Double_t, Short_t, Int_t=0 );
+Double_t KM( TH1D*, Float_t, Short_t=1 );
 
 class KMaterial {
 
@@ -30,12 +30,12 @@ public:
 
   //////////////////////////////////////////////////////
 
-  KMaterial(){Mat=1;}// MobMod=1;}
+  KMaterial(){Mat=1;} // silicon
   ~KMaterial(){};
    static Double_t dEdx(Double_t);
    static Float_t dEX(Double_t ,Double_t *, Double_t *,Double_t);
-   static Float_t Perm(Int_t=1); 
-   static Float_t Rho(){return 0;}; 
+   static Float_t Perm(Int_t=1);
+   static Float_t Rho(){return 0;};
    static Int_t MobMod();
  ClassDef(KMaterial,1) 
    };

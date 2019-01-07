@@ -102,12 +102,14 @@ void KPixel::SetUpElectrodes( Int_t Material )
       for( Int_t i = 1;i <= nx; ++i ) {
 	if( k == 1 ) { // surface
 	  EG->SetBinContent( i, j, k, 2 ); // bit 2 = bias voltage here
-	  DM->SetBinContent( i, j, k, 100 );
+	  DM->SetBinContent( i, j, k, 100 ); // KMaterial: 100 = Alu, overwritten below
 	}
-	else
+	else { // DP: { E-field does not converge
 	  EG->SetBinContent( i, j, k, 0 );
-	DM->SetBinContent( i, j, k, Material );
-      }
+	  //DM->SetBinContent( i, j, k, Material );
+	} // DP
+	DM->SetBinContent( i, j, k, Material ); // intentional?
+      } // loops k,j,i
 
   for( Int_t p = 0; p < nPix; ++p ) {
 
@@ -131,7 +133,7 @@ void KPixel::SetUpElectrodes( Int_t Material )
       for( Int_t j = ypl; j <= ypr; ++j )
 	for( Int_t i = xpl; i <= xpr; ++i ) {
 	  //	  if(x0+i>1 && x0+i<=nx && y0+i>1 && y0+i<=ny)
-	  EG->SetBinContent( i, j, k, PSW[p] ); // weight = elecrode flag
+	  EG->SetBinContent( i, j, k, PSW[p] ); // weight = electrode flag
 	}
 
   } // px

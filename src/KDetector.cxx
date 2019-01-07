@@ -74,7 +74,7 @@ double *dvector(long, long);
 void free_dvector(double*,long,long);
 
 //------------------------------------------------------------------------------
-bool isOK( double x )
+bool isOK( double x ) // check against NAN
 {
   if( x >= 0 ) return 1;
   if( x <= 0 ) return 1;
@@ -95,16 +95,16 @@ double snrm( unsigned long n, double sx[], int itol )
 
   if( itol <= 3 ) {
     ans = 0.0;
-    for( i=1;i<=n;i++ )
+    for( i = 1; i <= n; ++i )
       ans += sx[i]*sx[i];
     return sqrt(ans);
   }
   else {
     isamax = 1;
-    for( i = 1;i <= n; i++ )
+    for( i = 1; i <= n; ++i )
       if( fabs(sx[i]) > fabs(sx[isamax]) )
-	isamax=i;
-    return fabs(sx[isamax]);
+	isamax = i;
+    return fabs( sx[isamax] );
   }
 }
 
@@ -123,7 +123,7 @@ void atimes( unsigned long n, int dim[], double x[], double r[], int itrnsp )
   for( int k = 1; k <= nz; ++k )
     for( int j = 1; j <= ny; ++j )          /*mnozenje po stolpcu*/
       for( int i = 1; i <= nx; ++i ) {      /*mnozenje po vrstici*/ 
-	q++;
+	++q;
 	double C,L,D,O,R,U,I;
 	C=y3[q]*x[q];
 	if(q-1>1)        L=y2[q]*x[q-1]; else L=0;
@@ -192,7 +192,7 @@ void linbcg( unsigned long n, int dim[], double b[], double x[], int itol, doubl
 
   atimes( n, dim, x, r, 0 );
 
-  for( j=1;j<=n;j++) {
+  for( j = 1; j <= n; ++j ) {
     r[j] = b[j]-r[j];
     rr[j] = r[j];
   }
@@ -230,28 +230,28 @@ void linbcg( unsigned long n, int dim[], double b[], double x[], int itol, doubl
 
       zm1nrm = znrm;
       asolve(n,rr,zz,1);
-      for( bknum = 0.0, j = 1; j <= n; j++ )
+      for( bknum = 0.0, j = 1; j <= n; ++j )
 	bknum += z[j]*rr[j];
       if( *iter == 1 ) {
-	for( j = 1; j <= n; j++ ) {
+	for( j = 1; j <= n; ++j ) {
 	  p[j] = z[j];
 	  pp[j] = zz[j];
 	}
       }
       else {
-	bk = bknum/bkden;
-	for( j=1;j<=n;j++) {
-	  p[j]=bk*p[j]+z[j];
-	  pp[j]=bk*pp[j]+zz[j];
+	bk = bknum / bkden;
+	for( j = 1; j <= n; ++j ) {
+	  p[j] = bk*p[j] + z[j];
+	  pp[j] = bk*pp[j] + zz[j];
 	}
       }
-      bkden=bknum;
-      atimes(n,dim,p,z,0);
-      for( akden=0.0,j=1;j<=n;j++)
+      bkden = bknum;
+      atimes( n, dim, p, z, 0 );
+      for( akden = 0.0, j = 1; j <= n; ++j )
 	akden += z[j]*pp[j];
-      ak=bknum/akden;
-      atimes(n,dim,pp,zz,1);
-      for( j=1;j<=n;j++) {
+      ak = bknum / akden;
+      atimes( n, dim, pp, zz, 1 );
+      for( j = 1; j <= n; ++j ) {
 	x[j] += ak*p[j];
 	r[j] -= ak*z[j];
 	rr[j] -= ak*zz[j];
@@ -311,17 +311,15 @@ void linbcg( unsigned long n, int dim[], double b[], double x[], int itol, doubl
 //------------------------------------------------------------------------------
 KDetector::KDetector()
 {
-  //////////////////////////////////////////////////////////////////////
-  // Author: Gregor Kramberger                                        //
-  // Default constructor for KDetector class                           //
-  // Default = no space charge -> default space charge is function     //
-  //////////////////////////////////////////////////////////////////////
+  // Author: Gregor Kramberger
+  // Default constructor for KDetector class
+  // Default = no space charge -> default space charge is function
 
   NeffF = new TF3( "Profile", "x[0]*x[1]*x[2]*0+[0]", 0, 1000, 0, 1000, 0, 1000 );
   NeffF->SetParameter(0,0); // no doping
   NeffH = NULL; // no Neff histogram
 
-  for( Int_t i=0; i<3; i++ )
+  for( Int_t i = 0; i < 3; ++i )
     B[i] = 0; // magnetic field
 
   // setting up default random generator for diffusion
@@ -331,32 +329,33 @@ KDetector::KDetector()
   // Calculation parameters
 
   CalErr = 1e-6; // tolerance for linbcg
-  MaxIter = 2000;
+  MaxIter = 2000; // GK
 
   // histograms for storing the drift
   pos = NULL;
   neg = NULL;
   sum = NULL;
-  SetDriftHisto( 25.0, 250 ); // [ns]
+  //SetDriftHisto( 25.0, 500 ); // [ns]
+  SetDriftHisto( 10, 500 ); // [ns] DP for edge9 at 400V, tauh=2/F
   qnode[0] = 0;
 
   // setting up general variables
 
   Landau = 1;
-  taue = -1;   //no electron trapping 
-  tauh = -1;   //no hole trapping 
-  MTresh = -1; //no multiplication 
+  taue = -1;   // no electron trapping 
+  tauh = -1;   // no hole trapping 
+  MTresh = -1; // no multiplication 
   BDTresh = -1;
 
   // drift:
-  Deps = 1e-5; //precision of tracking
-  //MobMod=1;  //Mobility parametrization
-  average = 1; //average over waveforms
-  diff = 0;    //diffusion
-  SStep = 1;   //Step size of simulation [um]
-  Temperature=263; //temperature
-  BreakDown=0; // no breakdown
-  Debug=0;     // bo printing of debug information
+  Deps = 1e-5; // precision of tracking
+  // MobMod=1;  // Mobility parametrization
+  average = 1; // average over waveforms
+  diff = 0;    // diffusion
+  SStep = 1;   // Step size of simulation [um]
+  Temperature=263; // temperature
+  BreakDown=0; //  no breakdown
+  Debug=0;     //  bo printing of debug information
   Voltage2=0;
 
 } // constructor
@@ -426,110 +425,13 @@ Double_t KDetector::kappa(int i,int j, int k,  int dowhat )
 }
 
 //------------------------------------------------------------------------------
-// void KDetector::Declaration(Int_t dowhat)
-// {
-//   // New declaration for a general detector class 
-//   Int_t i,j,k,val;
-//   Double_t Rd,Ld,Dd,Ud,Od,Id;
-//   Double_t Xr=0,Yr=0,Zr=0;
-//   Double_t Xc=0,Yc=0,Zc=0;
-//   Double_t Xl=0,Yl=0,Zl=0;
-  
-//   Double_t p1,p2,p3,p4;
-//   long n=0;
-//   Int_t num=nx*ny*nz;
-
-//    for( k=1;k<=nz;k++)
-//         for( j=1;j<=ny;j++)
-// 		for(i=1;i<=nx;i++)
-// 		  {
-//  		    n=(k-1)*nx*ny+(j-1)*nx+i; //Get index of the matrix element
-
-// 		 Rd=fabs(EG->GetXaxis()->GetBinCenter(i+1)-EG->GetXaxis()->GetBinCenter(i));
-// 		 Ld=fabs(EG->GetXaxis()->GetBinCenter(i)-EG->GetXaxis()->GetBinCenter(i-1));
-// 		 if(i+1>nx) Rd=Ld; if(i-1<1) Ld=Rd;
-// 		 Ud=fabs(EG->GetYaxis()->GetBinCenter(j+1)-EG->GetYaxis()->GetBinCenter(j));
-// 		 Dd=fabs(EG->GetYaxis()->GetBinCenter(j)-EG->GetYaxis()->GetBinCenter(j-1));
-// 		 if(j+1>ny) Ud=Dd; if(j-1<1) Dd=Ud;
-// 		 Od=fabs(EG->GetZaxis()->GetBinCenter(k+1)-EG->GetZaxis()->GetBinCenter(k));
-// 		 Id=fabs(EG->GetZaxis()->GetBinCenter(k)-EG->GetZaxis()->GetBinCenter(k-1));
-// 		 if(k+1>nz) Od=Id; if(k-1<1) Id=Od;
-//                  // Rd*=0.1; Ld*=0.1;
-// 		 // Ud*=0.1; Dd*=0.1;
-		 		 
-// 		 if(Rd>=Ld) { Xr=1/(Rd*Ld); Xl=1/(Ld*Ld); } else
-//           		    { Xr=1/(Rd*Rd); Xl=1/(Rd*Ld); };  Xc=-(Xr+Xl);
-// 		 if(Ud>=Dd) { Yr=1/(Ud*Dd); Yl=1/(Dd*Dd); } else
-// 		            { Yr=1/(Ud*Ud); Yl=1/(Ud*Dd); };  Yc=-(Yr+Yl);
-// 		 if(nz!=1)  {
-// 		 if(Od>=Id) { Zr=1/(Od*Id); Zl=1/(Id*Id); } else
-// 		            { Zr=1/(Od*Od); Zl=1/(Od*Id); }   Zc=-(Zr+Zl);
-// 		            }
-		 
-// 		//  //epsilon
-//   		 KMaterial::Mat=DM->GetBinContent(i,j,k); p1=KMaterial::Perm();
-//  		 KMaterial::Mat=DM->GetBinContent(i,j-1,k); p2=KMaterial::Perm(); Xr*=0.5*(p1+p2);
-   	        
-//                  KMaterial::Mat=DM->GetBinContent(i-1,j,k); p1=KMaterial::Perm();
-//  		 KMaterial::Mat=DM->GetBinContent(i-1,j-1,k); p2=KMaterial::Perm(); Xl*=0.5*(p1+p2);
-
-//                  KMaterial::Mat=DM->GetBinContent(i,j,k); p1=KMaterial::Perm();
-//  		 KMaterial::Mat=DM->GetBinContent(i-1,j,k); p2=KMaterial::Perm(); Yr*=0.5*(p1+p2);
-
-//                  KMaterial::Mat=DM->GetBinContent(i-1,j-1,k); p1=KMaterial::Perm();
-//  		 KMaterial::Mat=DM->GetBinContent(i,j-1,k); p2=KMaterial::Perm(); Yl*=0.5*(p1+p2);
-
-//                  KMaterial::Mat=DM->GetBinContent(i-1,j-1,k); p1=KMaterial::Perm();
-//  		 KMaterial::Mat=DM->GetBinContent(i,j-1,k); p2=KMaterial::Perm(); 
-//  		 KMaterial::Mat=DM->GetBinContent(i-1,j,k); p3=KMaterial::Perm(); 
-//  		 KMaterial::Mat=DM->GetBinContent(i,j,k); p4=KMaterial::Perm(); 
-
-
-	      
-//        		    b[n]=0.;
-// 		    val=EG->GetBinContent(i,j,k);
-
-// 		    if(nz==1) 
-//                           { 
-// 			    C1(Xc,Yc,0) I0 O0 
-// 			    y3[n]=-1./(Ud*Dd)*(p1+p2+p3+p4);
-// 		          } 
-// 		    else  
-// 		          { C1(Xc,Yc,Zc) I1(Zl) O1(Zr) }
-
-// 		    R1(Xr) U1(Yr) L1(Xl) D1(Yl) 
-		      
-		      
-//   	            if(val&4)            {D0 b[n]-=V(EG->GetBinContent(i,j-1,k),dowhat)*Yl;}
-// 		    if(val&8)            {U0 b[n]-=V(EG->GetBinContent(i,j+1,k),dowhat)*Yr;}
-// 		    if(val&16)           {L0 b[n]-=V(EG->GetBinContent(i-1,j,k),dowhat)*Xl;}
-// 		    if(val&32)           {R0 b[n]-=V(EG->GetBinContent(i+1,j,k),dowhat)*Xr;}
-// 		    if(val&1024)         {I0 b[n]-=V(EG->GetBinContent(i,j,k-1),dowhat)*Zl;}
-// 		    if(val&2048)         {O0 b[n]-=V(EG->GetBinContent(i,j,k+1),dowhat)*Zr;}
-
-
-// 		    if(val&64)           {U2(Yr) D0 if(val&8)    {U0 b[n]-=V(EG->GetBinContent(i,j+1,k),dowhat)*Yr;}}
-// 		    if(val&128)          {D2(Yl) U0 if(val&4)    {D0 b[n]-=V(EG->GetBinContent(i,j-1,k),dowhat)*Yl;}}
-// 		    if(val&256)          {R2(Xr) L0 if(val&32)   {R0 b[n]-=V(EG->GetBinContent(i+1,j,k),dowhat)*Xr;}}
-// 		    if(val&512)          {L2(Xl) R0 if(val&16)   {L0 b[n]-=V(EG->GetBinContent(i-1,j,k),dowhat)*Xl;}}
-// 		    if(val&4096)         {O2(Zr) I0 if(val&2048) {O0 b[n]-=V(EG->GetBinContent(i,j,k+1),dowhat)*Zr;}}
-// 		    if(val&8192)         {I2(Zl) O0 if(val&1024) {I0 b[n]-=V(EG->GetBinContent(i,j,k-1),dowhat)*Zl;}}
-
-
-// 		    b[n]-=kappa(i,j,k,dowhat);
-// 		    if(val&1 || val&2)   {U0 D0 L0 R0 C0 O0 I0 b[n]=V(val,dowhat);}   
-// 		    	    if(j>=79 && j<82) printf( "stevilki: i=%d, j=%d, k=%d X=(%f %f ::%f %f), Y(%f %f :: %f %f), Z(%f %f :: %f %f) y[2,3,4,5,6,7,8]=%f %f %f %f %f %f %f :: b[n]=%f :: %d\n",i,j,k,Xr,Xl,Ld,Rd,Yr,Yl,Dd,Ud,Zr,Zl,Id,Od,y2[n],y3[n],y4[n],y5[n],y6[n],y7[n],y8[n],b[n],Mat);
-// 		    //      if(k==nz && (j==2 || j==ny-1)) printf( "stevilki: i=%d, j=%d, k=%d X=(%f %f ::%f %f), Y(%f %f :: %f %f), Z(%f %f :: %f %f) y[2,3,4,5,6,7,8]=%f %f %f %f %f %f %f :: b[n]=%f\n",i,j,k,Xr,Xl,Ld,Rd,Yr,Yl,Dd,Ud,Zr,Zl,Id,Od,y2[n],y3[n],y4[n],y5[n],y6[n],y7[n],y8[n],b[n]);
-// 		  }
-
-// }
-
-//------------------------------------------------------------------------------
 void KDetector::Declaration( Int_t dowhat )
 {
-  for( int k = 1; k <= nz; k++ )
-    for( int j = 1; j <= ny; j++ )
-      for( int i = 1; i <= nx; i++ ) {
+  for( int k = 1; k <= nz; ++k )
+
+    for( int j = 1; j <= ny; ++j )
+
+      for( int i = 1; i <= nx; ++i ) {
 
 	long n = (k-1)*nx*ny + (j-1)*nx + i; // make index of the matrix element
 
@@ -539,12 +441,14 @@ void KDetector::Declaration( Int_t dowhat )
 	if( k-1 < 1 ) kk = 1; else kk = k-1; 
 
 	/////////// DEFINE STEPS IN X //////////////////////////////////////
+
 	Double_t Rd = fabs( EG->GetXaxis()->GetBinCenter(i+1) - EG->GetXaxis()->GetBinCenter(i) );
 	Double_t Ld = fabs( EG->GetXaxis()->GetBinCenter(i) - EG->GetXaxis()->GetBinCenter(i-1) );
 	if( i+1 > nx ) Rd=Ld;
 	if( i-1 <  1 ) Ld=Rd;
 
-	////////// DEFINE PEMITIVITY IN X - normal surface ////////////////////////////
+	////////// DEFINE PERMITIVITY IN X - normal surface ////////////////////////////
+
 	Double_t PRd = Perm( DM->GetBinContent(i,j,k) ) + Perm( DM->GetBinContent(i,jj,k) );
 
 	if( nz != 1 ) {
@@ -571,7 +475,8 @@ void KDetector::Declaration( Int_t dowhat )
 	if( j+1 > ny ) Ud = Dd;
 	if( j-1 <  1 ) Dd = Ud;
 
-	////////// DEFINE PEMITIVITY IN Y ////////////////////////////
+	////////// DEFINE PERMITIVITY IN Y ////////////////////////////
+
 	Double_t PUd = Perm( DM->GetBinContent(i,j,k) ) + Perm( DM->GetBinContent(ii,j,k) );
 	if( nz != 1 ) {
 	  PUd += Perm( DM->GetBinContent(i,j,kk) ) + Perm( DM->GetBinContent(ii,j,kk) );
@@ -597,7 +502,8 @@ void KDetector::Declaration( Int_t dowhat )
 	if( k+1 > nz ) Od=Id;
 	if( k-1 <  1 ) Id=Od;
 
-	//////////DEFINE PEMITIVITY IN Z ////////////////////////////
+	//////////DEFINE PERMITIVITY IN Z ////////////////////////////
+
 	Double_t POd = 0;
 	Double_t PId = 0;
 	if( nz != 1 ) {
@@ -696,24 +602,27 @@ void KDetector::CalField( Int_t what )
 {
   //booking memory:
   int num = nx*ny*nz;
-  b  = dvector(1,num);
-  y6 = dvector(1,num);
-  y2 = dvector(1,num); 
-  y3 = dvector(1,num);
-  y4 = dvector(1,num);
-  y5 = dvector(1,num);
-  y7 = dvector(1,num);
-  y8 = dvector(1,num);
-  Double_t *x = dvector(1,num);    
+  b  = dvector( 1, num );
+  y6 = dvector( 1, num );
+  y2 = dvector( 1, num ); 
+  y3 = dvector( 1, num );
+  y4 = dvector( 1, num );
+  y5 = dvector( 1, num );
+  y7 = dvector( 1, num );
+  y8 = dvector( 1, num );
+  Double_t *x = dvector( 1, num );    
 
   // Setting up the boundary conditions
   std::cout << "KDetector::CalField setting up matrix " << what << " ... " << std::endl << std::flush;
   Declaration( what );
 
-  std::cout << "KDetector::CalField solving matrix with " << num << " cellls... " << std::endl << std::flush;
+  std::cout << "KDetector::CalField solving matrix with " << num << " cells... " << std::endl << std::flush;
+
   // matrix solving
-  for( int i = 1; i <=num; i++ )
+
+  for( int i = 1; i <=num; ++i )
     x[i] = 1.0;
+
   int dim[3];
   dim[0] = nx;
   dim[1] = ny;
@@ -723,7 +632,7 @@ void KDetector::CalField( Int_t what )
 
   linbcg( num, dim, b, x, 1, CalErr, MaxIter, &iter, &err );
 
-  std::cout << "done after " << iter << " iterations" << std::endl << std::flush;
+  std::cout << "linbcg done after " << iter << " iterations" << std::endl << std::flush;
 
   if( iter >= MaxIter ) return;
 
@@ -733,7 +642,7 @@ void KDetector::CalField( Int_t what )
     Real.U->SetName( "U" );
     Real.U->SetTitle( "E_pot" );
 
-    Real.CalField();
+    Real.CalField(); // E = -grd U
     Real.Ex->SetName( "E_x" );
     Real.Ey->SetName( "E_y" );
     Real.Ez->SetName( "E_z" );
@@ -758,12 +667,12 @@ void KDetector::CalField( Int_t what )
 } // CalField
 
 //------------------------------------------------------------------------------
-void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
+void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t qsign,
 		       KStruct *seg, Double_t t0 )
 {
-  //Drift simulation for a point charge (Float_t charg;)
-  //starting from ( sx,sy, sz)
-  //KStruct *seg stores the drift paths, drift times and induced charges
+  // Drift simulation for a point charge (Float_t qsign;)
+  // starting from ( sx,sy, sz)
+  // KStruct *seg stores the drift paths, drift times and induced charges
 
   // Inclusion of Magnetic field 28.8.2001 - revised 15.10.2012
 
@@ -777,7 +686,7 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
   //std::cout << "Drift seg at " << seg << std::endl; // always same mem loc
 
   seg->Clear();
-  seg->PCharge = (Int_t) charg;
+  seg->PCharge = (Int_t) qsign;
 
   // start drift:
 
@@ -793,15 +702,15 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
   seg->Time[st] = t*1E9; // [ns]
   seg->Charge[st] = 0;
 
-  //TVector3 * EE = Real.CalFieldXYZ( cx, cy, cz ); // created new
   Float_t EE[4];
   Real.CalFieldXYZ( cx, cy, cz, EE );
 
-  seg->Efield[st] = EE[0];
+  seg->Efield[st] = EE[0]; // magnitude
 
   Float_t pathlen = 0;
   Double_t sumc[99];
-  for( int ipx = 0; ipx < 99; ++ipx ) sumc[ipx] = 0;
+  for( int ipx = 0; ipx < 99; ++ipx )
+    sumc[ipx] = 0;
 
   Int_t is_hit = 0;
 
@@ -812,17 +721,15 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 	      << " " << sz
 	      << std::endl << std::flush;
 
-  do { // memory leak in this loop
+  do {
 
-    st++;
+    ++st;
 
     TVector3 FF; // Lorentz drift
     TVector3 EV( EE[1], EE[2], EE[3] );
-    if( charg > 0 )
-      //FF = (*EE) + muhh * EE->Cross(BB);
+    if( qsign > 0 )
       FF = EV + muhh * EV.Cross(BB);
     else
-      //FF = (*EE) - muhe * EE->Cross(BB);
       FF = EV - muhe * EV.Cross(BB);
 
     //printf( "Field : %f %f %f (%f %f %f)  ---- ",FF[0],FF[1],FF[2],(*EE)[0],(*EE)[1],(*EE)[2]);
@@ -832,9 +739,9 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
     Double_t deltacz = 0;
 
     if( FF.Mag() != 0 ) {
-      deltacy = -SStep*charg * FF.y() / FF.Mag();
-      deltacx = -SStep*charg * FF.x() / FF.Mag();
-      deltacz = -SStep*charg * FF.z() / FF.Mag();
+      deltacy = -SStep*qsign * FF.y() / FF.Mag();
+      deltacx = -SStep*qsign * FF.x() / FF.Mag();
+      deltacz = -SStep*qsign * FF.z() / FF.Mag();
     }
 
     if( ldb )
@@ -850,6 +757,8 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
     if( ldb )
       std::cout << ", mat " << KMaterial::Mat
 		<< std::endl << std::flush;
+
+    // check boundaries:
 
     Double_t ncx = cx + deltacx;
     if( ncx < GetLowEdge(0) ) {
@@ -888,7 +797,6 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 		<< ", " << ncz
 		<< std::flush;
 
-    //TVector3 * EEN = Real.CalFieldXYZ( ncx, ncy, ncz ); // created new
     Float_t EEN[4];
     Real.CalFieldXYZ( ncx, ncy, ncz, EEN );
 
@@ -898,14 +806,12 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 
     Double_t vel =
       Real.DriftVelocity( 0.5 * ( EEN[0] + EE[0] ),
-			  charg, Temperature,
+			  qsign, Temperature,
 			  TMath::Abs( NeffF->Eval( cx, cy, cz ) ),
 			  MobMod() );
     if( ldb )
       std::cout << ", v = " << vel
 		<< std::endl << std::flush;
-
-    //delete EEN; // prevent memory leak
 
     Double_t difx = 0;
     Double_t dify = 0;
@@ -917,53 +823,53 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
       deltacz = 0;
       is_hit = 10;
     }
-    else
-      if( diff ) { // is diffusion ON
-	Double_t Stime = SStep*1e-4/vel; // calculate step time [s]
-	Double_t sigma =
-	  TMath::Sqrt( 2 * Kboltz * Real.Mobility( EE[0],
-						   Temperature, charg,
-						   TMath::Abs( NeffF->Eval(cx,cy,cz) ),
-						   MobMod() ) * Temperature * Stime );
-	dify = ran->Gaus(0,sigma)*1e4; // [um]
-	difx = ran->Gaus(0,sigma)*1e4;
-	if( nz != 1 )
-	  difz = ran->Gaus(0,sigma)*1e4;
+    else if( diff ) { // is diffusion ON
+      Double_t Stime = SStep*1e-4/vel; // calculate step time [s]
+      Double_t sigma =
+	TMath::Sqrt( 2 * Kboltz * Real.Mobility( EE[0],
+						 Temperature, qsign,
+						 TMath::Abs( NeffF->Eval(cx,cy,cz) ),
+						 MobMod() ) * Temperature * Stime );
+      dify = ran->Gaus(0,sigma)*1e4; // [um]
+      difx = ran->Gaus(0,sigma)*1e4;
+      if( nz != 1 )
+	difz = ran->Gaus(0,sigma)*1e4;
+
+      ncx = cx + deltacx + difx;
+      if( ncx < GetLowEdge(0) ) {
+	ncx = GetLowEdge(0) + Deps;
+	is_hit = 3;
+      }
+      if( ncx > GetUpEdge(0) ) {
+	ncx = GetUpEdge(0) - Deps;
+	is_hit = 4;
       }
 
-    ncx = cx + deltacx + difx;
-    if( ncx < GetLowEdge(0) ) {
-      ncx = GetLowEdge(0) + Deps;
-      is_hit = 3;
-    }
-    if( ncx > GetUpEdge(0) ) {
-      ncx = GetUpEdge(0) - Deps;
-      is_hit = 4;
-    }
+      ncy = cy + deltacy + dify;
+      if( ncy < GetLowEdge(1) ) {
+	ncy = GetLowEdge(1) + Deps;
+	is_hit = 5;
+      }
+      if( ncy > GetUpEdge(1) ) {
+	ncy = GetUpEdge(1) - Deps;
+	is_hit = 6;
+      }
 
-    ncy = cy + deltacy + dify;
-    if( ncy < GetLowEdge(1) ) {
-      ncy = GetLowEdge(1) + Deps;
-      is_hit = 5;
-    }
-    if( ncy > GetUpEdge(1) ) {
-      ncy = GetUpEdge(1) - Deps;
-      is_hit = 6;
-    }
+      ncz = cz + deltacz + difz;
+      if( ncz < GetLowEdge(2) ) {
+	ncz = GetLowEdge(2) + Deps;
+	is_hit = 7;
+      }
+      if( ncz > GetUpEdge(2) ) {
+	ncz = GetUpEdge(2) - Deps;
+	is_hit = 8;
+      }
 
-    ncz = cz + deltacz + difz;
-    if( ncz < GetLowEdge(2) ) {
-      ncz = GetLowEdge(2) + Deps;
-      is_hit = 7;
-    }
-    if( ncz > GetUpEdge(2) ) {
-      ncz = GetUpEdge(2) - Deps;
-      is_hit = 8;
-    }
+    } // diff
 
     if( Debug )
       printf( "%d %f : x:%f->%f y:%f->%f z:%f->%f (%f %f %f): Mat=%d :: ",
-	      st,charg,cx,ncx,cy,ncy,cz,ncz,deltacx,deltacy,deltacz, KMaterial::Mat );
+	      st,qsign,cx,ncx,cy,ncy,cz,ncz,deltacx,deltacy,deltacz, KMaterial::Mat );
 
     if( ldb )
       std::cout << "KDetector::Drift stp " << st
@@ -976,7 +882,7 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 
     for( int ipx = 0; ipx < 99; ++ipx ) {
       if( Ramo[ipx].U == NULL ) break;
-      Double_t qstp = charg *
+      Double_t qstp = qsign *
 	( Ramo[ipx].CalPotXYZ( ncx, ncy, ncz ) - Ramo[ipx].CalPotXYZ( cx, cy, cz ) );
       seg->Charge[st] += qstp;
       sumc[ipx] += qstp;
@@ -988,7 +894,7 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
     }
 
     if( ldb )
-      std::cout << " um: Ramo charge " << seg->Charge[st]
+      std::cout << " um: Ramo signal " << seg->Charge[st]
 		<< ", t " << t
 		<< ", l " << pathlen
 		<< std::endl << std::flush;
@@ -997,7 +903,7 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
     cy = ncy;
     cz = ncz;
 
-    seg->Xtrack[st] = cx; // put the first point in the KStruct 
+    seg->Xtrack[st] = cx;
     seg->Ytrack[st] = cy;
     seg->Ztrack[st] = cz;
     seg->Time[st] = t*1E9; // [ns]
@@ -1009,7 +915,6 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 		<< ", " << cz
 		<< std::flush;
 
-    //EE = Real.CalFieldXYZ( cx, cy, cz );
     Real.CalFieldXYZ( cx, cy, cz, EE );
 
     seg->Efield[st] = EE[0];
@@ -1020,7 +925,9 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 
     // termination of the drift:
 
-    if( t > 25E-9 ) is_hit = 9; // [s]
+    //if( t > 25E-9 ) // [s] LHC
+    if( t > 10E-9 ) // [s] DP for edge9 at 400V, tauh=2/F
+      is_hit = 9;
     /*
     Float_t WPot = Ramo[0].CalPotXYZ(cx,cy,cz); // should be all nodes
     if( WPot > ( 1 - Deps ) ) is_hit = 1;
@@ -1029,7 +936,8 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
       std::cout << ", WPot " << WPot
 		<< std::endl << std::flush;
     */
-    if( st >= MAXPOINT-1 ) is_hit = 11;
+    if( st >= MAXPOINT-1 )
+      is_hit = 11;
 
     if( Debug )
       printf( "(t=%e, vel=%e) [Ch=%f ChInt=%f] Ishit=%d \n",
@@ -1051,9 +959,9 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t charg,
 } // Drift
 
 //------------------------------------------------------------------------------
-void KDetector::MipIR( Int_t div )
+void KDetector::MipIR( Int_t ndiv )
 {
-  // a track is divided into div pieces
+  // a track is divided into ndiv pieces
   // pos and neg charges are drifted in 1 um steps to the electrodes
   // induced currents are calculated and stored per step
 
@@ -1068,23 +976,23 @@ void KDetector::MipIR( Int_t div )
 	      << ", y " << enp[1] << " to " << exp[1]
 	      << ", z " << enp[2] << " to " << exp[2]
 	      << ", l " << dist
-	      << ", div " << div
+	      << ", ndiv " << ndiv
 	      << ", MTresh " << MTresh
 	      << ", average " << average
 	      << std::endl << std::flush;
 
   if( ldb )
     std::cout
-      << "bins " << pos->GetNbinsX()
+      << "drift bins " << pos->GetNbinsX()
       << ", " << pos->GetXaxis()->GetXmin()
       << ", " << pos->GetXaxis()->GetXmax()
       << std::endl << std::flush;
 
   TH1F * histop = new
-    TH1F( "chp", "charge+",
+    TH1F( "chp", "charge+ vs time",
 	  pos->GetNbinsX(), pos->GetXaxis()->GetXmin(), pos->GetXaxis()->GetXmax() );
   TH1F * histon  = new
-    TH1F( "chm", "charge-",
+    TH1F( "chm", "charge- vs time",
 	  neg->GetNbinsX(), neg->GetXaxis()->GetXmin(), neg->GetXaxis()->GetXmax() ); 
 
   sum->Reset();
@@ -1093,74 +1001,121 @@ void KDetector::MipIR( Int_t div )
   for( int ipx = 0; ipx < 99; ++ipx )
     qnode[ipx] = 0;
 
-  double Qdiv = dist/div*75E-3; // 0.075 ke/um
+  double Q = dist*0.1; // 0.1 ke/um mean
 
   // energy loss distribution:
-  TF1 * lan = new TF1( "lan"," TMath::Landau(x,[0],[1])", 0, 20*Qdiv );
-  lan->SetParameter( 0, Qdiv ); // peak
-  lan->SetParameter( 1, Qdiv/15 ); // width
+  // the sum of many Landaus becomes Gaussian (central limit theorem)
+  // sample from overall Landau:
 
-  for( int i = 0; i < div; ++i ) { 
+  TF1 * lan = new TF1( "lan"," TMath::Landau(x,[0],[1])", 0, 10*Q );
+  lan->SetParameter( 0, Q ); // peak from mean
+  lan->SetParameter( 1, Q/10/sqrt(dist/150) ); // width, adjusted DP 10/2017
 
-    Float_t sp[3]; // starting point at mid seg
+  if( Landau )
+    Q = lan->GetRandom();
+
+  // distribute over steps:
+
+  double qstp = Q/ndiv; // [ke] mean
+
+  // re-sample with step-wise Landau:
+
+  TF1 * lan2 = new TF1( "lan2"," TMath::Landau(x,[0],[1])", 0, 10*qstp );
+  lan2->SetParameter( 0, qstp*11.25/15.5 ); // peak from mean
+  lan2->SetParameter( 1, qstp/10 ); // width, adjusted
+
+  for( int i = 0; i < ndiv; ++i ) { 
+
+    Float_t sp[3];
     for( int j = 0; j < 3; ++j )
-      sp[j] = enp[j] + ( i + 0.5 ) * ( exp[j] - enp[j] ) / div;
+      sp[j] = enp[j] + ( i + 0.5 ) * ( exp[j] - enp[j] ) / ndiv; // point on track
 
-    // printf( "#i=%d div=%d, pointx=%f, pointy=%f pointz=%f \n",i,div,sp[0],sp[1],sp[2]); 
+    // printf( "#i=%d ndiv=%d, pointx=%f, pointy=%f pointz=%f \n",i,ndiv,sp[0],sp[1],sp[2]); 
 
     for( int j = 0; j < average; ++j ) { 
 
       KStruct seg;
-      Drift( sp[0], sp[1], sp[2], 1, &seg ); // holes
-      double Q = 1;
+
+      // holes:
+
+      Drift( sp[0], sp[1], sp[2], 1, &seg );
+
+      //double q = qstp; // DP 10/2017
+      //double q = 1.0 / ndiv; // DP Dec 2018
+      double q = 1.0; // DP Dec 2018
       if( Landau )
-	Q = lan->GetRandom();
-      //std::cout << "  " << Q;
-      if( ldb )
+	q = lan2->GetRandom();
+      //std::cout << "  " << q;
+
+      //if( ldb )
 	std::cout << "h drift from z " << sp[2]
+		  << ", y " << sp[1]
 		  << ": t " << seg.TTime
-		  << ", q " << seg.TCharge[0]*Q
-		  << ", N " << seg.Steps
-		  << ", d " << seg.Xlength
+		  << ", S0 " << seg.TCharge[0]
+		  << ", S1 " << seg.TCharge[1]
+		  << ", S2 " << seg.TCharge[2]
+	  //<< ", q " << seg.TCharge[0]*q
+	  //<< ", N " << seg.Steps
+		  << ", dist " << seg.Xlength
 		  << std::endl;
+
       for( int ipx = 0; ipx < 99; ++ipx )
-	qnode[ipx] += Q*seg.TCharge[ipx]; // without trapping
+	qnode[ipx] += q*seg.TCharge[ipx]; // without trapping
 
-      seg.GetCH( histop, 1, Q, tauh ); // all nodes vs time, with trapping
+      seg.GetCH( histop, 1, q, tauh ); // all nodes vs time, with trapping (KStruct)
 
-      Drift( sp[0], sp[1], sp[2], -1, &seg ); // e
+      // e:
+
+      Drift( sp[0], sp[1], sp[2], -1, &seg );
+
       if( ldb )
 	std::cout << "e drift from z " << sp[2]
+		  << ", y " << sp[1]
 		  << ": t " << seg.TTime
-		  << ", q " << seg.TCharge[0]*Q
-		  << ", N " << seg.Steps
+		  << ", S " << seg.TCharge[0]
+	  //<< ", q " << seg.TCharge[0]*q
+	  //<< ", N " << seg.Steps
 		  << ", d " << seg.Xlength
 		  << std::endl;
+
       for( int ipx = 0; ipx < 99; ++ipx )
-	qnode[ipx] += Q*seg.TCharge[ipx]; // without trapping
+	qnode[ipx] += q*seg.TCharge[ipx]; // without trapping
 
       Float_t mule = 0;
 
       if( MTresh > 1 ) {
-	mule = seg.GetCHMult( histon, 1, 1,taue );  // performing multiplication
-	//      if(Debug)  printf( ":: Mstep = %f ::",mule);
+	mule = seg.GetCHMult( histon, 1, q, taue );  // performing multiplication
+	// if(Debug) printf( ":: Mstep = %f ::",mule);
+	std::cout << "e drift from z " << sp[2]
+		  << ", y " << sp[1]
+		  << ": t " << seg.TTime
+		  << ", S0 " << seg.TCharge[0]
+		  << ", S1 " << seg.TCharge[1]
+		  << ", S2 " << seg.TCharge[2]
+	  //<< ", q " << seg.TCharge[0]*q
+	  //<< ", N " << seg.Steps
+		  << ", dist " << seg.Xlength
+		  << ", mul " << mule
+		  << std::endl;
       }
       else
-	seg.GetCH( histon, 1, Q, taue ); // with trapping
+	seg.GetCH( histon, 1, q, taue ); // with trapping
 
       //if the multiplication is large enough then do the hole tracking:
 
       if( MTresh > 1 && mule > MTresh ) {
+	if( ldb )
+	  std::cout << "drift extra holes" << std::endl;
 	for( int e = 1; e < seg.Steps+1; ++e ) {
 	  KStruct segmul;
 	  Drift( seg.Xtrack[e], seg.Ytrack[e], seg.Ztrack[e], 1, &segmul, seg.Time[e]*1E-9 );
 	  Float_t mulh = segmul.GetCHMult( histop, 1, seg.MulCar[e], tauh );
 	  if( mulh > BDTresh ) {
 	    printf( "HOLE MULTIPLICATION - BREAKDOWN\n" );
-	    BreakDown=1;
+	    BreakDown = 1;
 	  }
-	}
-      }
+	} // Steps
+      } // MTresh
 
     } // average
 
@@ -1172,8 +1127,8 @@ void KDetector::MipIR( Int_t div )
 
     histop->Reset();
     histon->Reset();
-  
-  } // div
+
+  } // ndiv
 
   //std::cout << std::endl << std::flush;
 
@@ -1189,10 +1144,10 @@ void KDetector::MipIR( Int_t div )
 } // MipIR
 
 //------------------------------------------------------------------------------
-void KDetector::ShowMipIR( Int_t div, Int_t color, Int_t how )
+void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
 {
   // The simulation of the drift for the minimum ionizing particles. 
-  // A track is devided into Int_ div buckets. Each bucket is drifted in the field. The
+  // A track is devided into Int_ ndiv buckets. Each bucket is drifted in the field. The
   // induced currents for each carrier is calculated as the sum of all buckets. 
 
   TGraph *gr;
@@ -1205,7 +1160,7 @@ void KDetector::ShowMipIR( Int_t div, Int_t color, Int_t how )
 	    << ", x " << enp[0] << " to " << exp[0]
 	    << ", y " << enp[1] << " to " << exp[1]
 	    << ", z " << enp[2] << " to " << exp[2]
-	    << ", div " << div
+	    << ", ndiv " << ndiv
 	    << ", MTresh " << MTresh
 	    << ", average " << average
 	    << std::endl;
@@ -1216,8 +1171,8 @@ void KDetector::ShowMipIR( Int_t div, Int_t color, Int_t how )
 
     if( nz == 1 )
       KHisProject( EG, 3, how )->Draw( "COL" );
-    else        {
-      TH3F *hh = GetGeom();
+    else {
+      TH3F * hh = GetGeom();
       hh->SetFillColor(color);
       hh->SetTitle( "drift display" );
       hh->Draw( "iso" );
@@ -1227,10 +1182,10 @@ void KDetector::ShowMipIR( Int_t div, Int_t color, Int_t how )
 
   // Draw drift paths
 
-  for( int i = 0; i < div; ++i ) {
+  for( int i = 0; i < ndiv; ++i ) {
 
     for( int j = 0; j < 3; ++j )
-      sp[j] = ( ( exp[j] - enp[j] ) / div ) *  i + enp[j] + ( exp[j] - enp[j] ) / (2*div);
+      sp[j] = ( ( exp[j] - enp[j] ) / ndiv ) *  i + enp[j] + ( exp[j] - enp[j] ) / (2*ndiv);
 
     if( Debug )
       printf( "drift start point %f %f %f \n", sp[0], sp[1], sp[2] );
@@ -1320,16 +1275,16 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
   if( opt.Contains( "E" ) ) What=1; // E
 
   if( nz > 1 ) {
-    if( opt.Contains( "xy" ) ) Which3D=3;  
-    if( opt.Contains( "xz" ) ) Which3D=2;
-    if( opt.Contains( "yz" ) ) Which3D=1;
+    if( opt.Contains( "xy" ) ) Which3D = 3;
+    if( opt.Contains( "xz" ) ) Which3D = 2;
+    if( opt.Contains( "yz" ) ) Which3D = 1;
   }
 
-  if( opt.Contains( "P" ) ) Which=0; // potential
-  if( opt.Contains( "F" ) ) Which=1; // |E|
-  if( opt.Contains( "X" ) ) Which=2; // Ex
-  if( opt.Contains( "Y" ) ) Which=3;
-  if( opt.Contains( "Z" ) ) Which=4; // Ez
+  if( opt.Contains( "P" ) ) Which = 0; // potential
+  if( opt.Contains( "F" ) ) Which = 1; // |E|
+  if( opt.Contains( "X" ) ) Which = 2; // Ex
+  if( opt.Contains( "Y" ) ) Which = 3;
+  if( opt.Contains( "Z" ) ) Which = 4; // Ez
 
   if( What <= 2 ) {
     if( What == 2 )
@@ -1338,12 +1293,12 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
       cf = &Real;
     switch(Which)
       {
-      case 0: ch=cf->U;  break;
-      case 1: ch=cf->E;  break;
-      case 2: ch=cf->Ex; break;
-      case 3: ch=cf->Ey; break;
-      case 4: ch=cf->Ez; break;
-      default: ch=cf->U;  break;
+      case 0: ch = cf->U;  break;
+      case 1: ch = cf->E;  break;
+      case 2: ch = cf->Ex; break;
+      case 3: ch = cf->Ey; break;
+      case 4: ch = cf->Ez; break;
+      default: ch = cf->U;  break;
       }
   } 
   else {
@@ -1379,7 +1334,7 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
 } // Draw
 
 //------------------------------------------------------------------------------
-TH1F *KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t pos )
+TH1F * KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t pos )
 {
   // Draws the 1D projection of the Field
   // Char_t option;  see ::Draw()
@@ -1409,7 +1364,7 @@ TH1F *KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t p
 		axis+1, int(pos), int(proj) ),
 	  iter, low, up );
   
-  for( Int_t i = 1; i <= iter; i++ ) {
+  for( Int_t i = 1; i <= iter; ++i ) {
     if( axis == 0 )
       h1->SetBinContent( i, h2->GetBinContent(i, h2->GetYaxis()->FindBin(pos) ) );
     else
@@ -1443,95 +1398,53 @@ void KDetector::CalM( KStruct *seg, Double_t *data, Int_t CarrierType )
   Double_t dx,dy,sum=1.,sum2=0,sum1=0,dif,dif1,dif2;
   //      printf( "Number of Steps=%d\n",seg->Steps);
     
-  for(i=1; i<seg->Steps;i++) {
+  for( i = 1; i < seg->Steps; ++i ) {
     //	  if(i==seg->Steps) DIF[i]=0;
-    dx=TMath::Sqrt(TMath::Power((seg->Xtrack[i+1]-seg->Xtrack[i]),2)+TMath::Power((seg->Ytrack[i+1]-seg->Ytrack[i]),2));
+    dx = TMath::Sqrt( TMath::Power( (seg->Xtrack[i+1] - seg->Xtrack[i] ), 2 ) +
+		      TMath::Power( (seg->Ytrack[i+1] - seg->Ytrack[i] ), 2 ) );
 
-    if(CarrierType<0)
-      dif=Real.alpha(0.5*(seg->Efield[i+1]+seg->Efield[i]));
+    if( CarrierType < 0 )
+      dif = Real.alpha( 0.5 * ( seg->Efield[i+1] + seg->Efield[i] ) );
     else
-      dif=Real.beta(0.5*(seg->Efield[i+1]+seg->Efield[i]));
+      dif = Real.beta( 0.5 * ( seg->Efield[i+1] + seg->Efield[i] ) );
 
-    sum*=(1+dif*dx);
-    DIF[i]=sum;
+    sum *= (1+dif*dx);
+    DIF[i] = sum;
   }
 
   //      for(i=1;i<seg->Steps;i++) { printf( "Step=%d [%f %f], E=%f , a[i]=%f M(i)=%f\n",i,seg->Xtrack[i],seg->Ytrack[i],seg->Efield[i],Real.alpha(seg->Efield[i]),DIF[i]); }
-   
-  data[0]=DIF[seg->Steps-1]; data[1]=0; data[2]=0; data[3]=0;
+
+  data[0] = DIF[seg->Steps-1];
+  data[1]=0;
+  data[2]=0;
+  data[3]=0;
   // printf( "KKK %f\n",data[0]);
-  for(i=1;i<seg->Steps;i++)  {
-    if((DIF[i]-1)/(data[0]-1)>0.8 && DIF[i]>1.02) {
-      data[1]+=seg->Xtrack[i]; data[2]+=seg->Ytrack[i]; 
-      data[3]+=seg->Time[i]*1E-9; numreg++;
+  for( i = 1; i < seg->Steps; ++i ) {
+    if( (DIF[i]-1) / (data[0]-1) > 0.8 && DIF[i] > 1.02 ) {
+      data[1] += seg->Xtrack[i];
+      data[2] += seg->Ytrack[i]; 
+      data[3] += seg->Time[i]*1E-9;
+      ++numreg;
       //printf( "MUL=%f (X=%3.1f Y=%3.1f)::::: %e %e %e %d\n",DIF[i],seg->Xtrack[i],seg->Ytrack[i],data[1],data[2],data[3],numreg);
     }
   }
-  if(numreg!=0) {
-    data[1]/=numreg;
-    data[2]/=numreg;
-    data[3]/=numreg;
+  if( numreg != 0 ) {
+    data[1] /= numreg;
+    data[2] /= numreg;
+    data[3] /= numreg;
   }
 
 } // CalM
 
 //------------------------------------------------------------------------------
-// void KPad::Alpha(Float_t E, Float_t Angle, Float_t *enp)
-// {
-//   // The simulation of the drift for the minimum ionizing particles. 
-//   // A track is devided into Int_ div buckets. Each bucket is drifted in the field. The
-//   // induced currents for each carrier is calculated as the sum of all buckets. 
-//   //	Int_t MobMod; mobility model
-//   //	Float_t B; magnetic field
-
-// TH1F trn[4],trp[4];
-// Double_t x[1000],y[1000];
-// Float_t sp[3];
-// int i,j,div;
-// KStruct seg;
-// TH1F *histop  = new TH1F( "chp","charge+",pos->GetNbinsX(),pos->GetXaxis()->GetXmin(),pos->GetXaxis()->GetXmax());
-// TH1F *histon  = new TH1F( "chm","charge-",neg->GetNbinsX(),neg->GetXaxis()->GetXmin(),neg->GetXaxis()->GetXmax()); 
-// sum->Reset(); pos->Reset(); neg->Reset();
-
-// div=(Int_t) KMaterial::dEX(E,x,y,1);
-
-// for(i=0;i<=div;i++) 
-//   {
-//     for(j=0;j<3;j++) {if(j==0) sp[j]=enp[j]+TMath::Sin(Angle)*x[i]; if(j==1) sp[j]=enp[j]-TMath::Cos(Angle)*x[i];} 
-//     //if(+enp[j]+(exp[j]-enp[j])/(2*div);}
-//     //printf( "#i=%d div=%d, pointx=%f, pointy=%f weight=%f\n",i,div,sp[0],sp[1],y[i]); 
-//     for(j=0;j<average;j++){ 
-//       Drift(sp[0],sp[1],1,&seg,MobMod);
-//       seg.GetCH(histop,1); 
-//       Drift(sp[0],sp[1],-1,&seg,MobMod);
-//       seg.GetCH(histon,1); 
-//                      }
-//     histop->Scale(y[i]/((Float_t)average)); histon->Scale(y[i]/((Float_t)average)); 
-//     //    histop->Scale(0.05); histon->Scale(0.05); 
-//     if(trapping) {
-//        ht->Trapping(histop,trp);  
-//        et->Trapping(histon,trn);
-//        pos->Add(&trp[3]); neg->Add(&trn[3]);     
-//     } else {pos->Add(histop);neg->Add(histon);}
-//       histop->Reset();
-//       histon->Reset();
-  
-//   }
-// sum->Add(neg);
-// sum->Add(pos);
-// delete histop;
-// delete histon;
-// }
-
-//------------------------------------------------------------------------------
 void KDetector::SetDriftHisto( Float_t x, Int_t numbins )
 {
   if( pos != NULL ) delete pos;
-  pos = new TH1F( "qpos", "Positive Charge", numbins, 0, x );
+  pos = new TH1F( "qpos", "hole signal", numbins, 0, x );
   if( neg != NULL ) delete neg;
-  neg = new TH1F( "qneg", "Negative Charge", numbins, 0, x ); 	
+  neg = new TH1F( "qneg", "electron signal", numbins, 0, x ); 	
   if( sum != NULL ) delete sum;
-  sum = new TH1F( "charge", "Total Charge", numbins, 0, x ); 
+  sum = new TH1F( "charge", "sum signal", numbins, 0, x ); 
 
   sum->SetXTitle( "t [ns]" );
   neg->SetXTitle( "t [ns]" );
@@ -1549,12 +1462,14 @@ void KDetector::SetDriftHisto( Float_t x, Int_t numbins )
 }
 
 //------------------------------------------------------------------------------
-void  KDetector::Save( Char_t *name, std::string  file )
+void  KDetector::Save( std::string name, std::string file )
 {
   Char_t str[100];
   TFile * fn = new TFile( file.c_str(), "UPDATE" );
 
-  sprintf( str, "E_%s", name );
+  std::cout << "Writing fields to " << file << std::endl;
+
+  sprintf( str, "E_%s", name.c_str() );
   if( Real.U != NULL )
     Real.U->Write(str);
   else {
@@ -1563,12 +1478,12 @@ void  KDetector::Save( Char_t *name, std::string  file )
   }
 
   for( int ipx = 0; ipx < 99; ++ipx ) {
-    sprintf( str, "W_%i_%s", ipx, name );
+    sprintf( str, "W_%i_%s", ipx, name.c_str() );
     if( Ramo[ipx].U != NULL )
       Ramo[ipx].U->Write(str);
   }
 
-  sprintf( str, "G_%s", name );
+  sprintf( str, "G_%s", name.c_str() );
   if( EG != NULL )
     EG->Write(str);
   else {
@@ -1576,7 +1491,7 @@ void  KDetector::Save( Char_t *name, std::string  file )
     return;
   }
 
-  sprintf( str, "M_%s", name );
+  sprintf( str, "M_%s", name.c_str() );
   if( DM != NULL )
     DM->Write(str);
   else {
@@ -1589,7 +1504,7 @@ void  KDetector::Save( Char_t *name, std::string  file )
 } // Save
 
 //------------------------------------------------------------------------------
-TFile * KDetector::Read( Char_t *name, std::string file )
+TFile * KDetector::Read( std::string name, std::string file )
 {
   TFile * fn = new TFile( file.c_str() );
 
@@ -1597,12 +1512,12 @@ TFile * KDetector::Read( Char_t *name, std::string file )
 
   if( Real.U == NULL )
     Real.U = new TH3F();
-  sprintf( str, "E_%s", name );
+  sprintf( str, "E_%s", name.c_str() );
   std::cout << "read " << str << std::endl;
   Real.U->Read(str);
 
   for( int ipx = 0; ipx < 99; ++ipx ) {
-    sprintf( str,"W_%i_%s", ipx, name );
+    sprintf( str,"W_%i_%s", ipx, name.c_str() );
     if( fn->GetKey(str) ) {
       if( Ramo[ipx].U == NULL )
 	Ramo[ipx].U = new TH3F();
@@ -1615,13 +1530,13 @@ TFile * KDetector::Read( Char_t *name, std::string file )
 
   if( EG == NULL )
     EG = new TH3I();
-  sprintf( str, "G_%s", name);
+  sprintf( str, "G_%s", name.c_str() );
   std::cout << "read " << str << std::endl;
   EG->Read(str);
 
   if( DM == NULL )
     DM = new TH3I();
-  sprintf( str, "M_%s", name);
+  sprintf( str, "M_%s", name.c_str() );
   std::cout << "read " << str << std::endl;
   DM->Read(str);
 
@@ -1629,8 +1544,8 @@ TFile * KDetector::Read( Char_t *name, std::string file )
   ny = EG->GetNbinsY();
   nz = EG->GetNbinsZ();
 
-  Real.CalField();
-  Ramo[0].CalField(); 
+  Real.CalField(); // E = -grd U
+  //Ramo[0].CalField(); DP: not needed for KPixel
 
   return fn;
 }

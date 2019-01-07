@@ -1,7 +1,7 @@
 
 #include "KMaterial.h"
 
-Double_t KM(TH1D *his,Float_t Start, Short_t Rev)
+Double_t KM( TH1D *his, Float_t Start, Short_t Rev )
 {
   // The derivation of the calculation can be seen in textbooks or e.g. here:
   // http://www.iue.tuwien.ac.at/phd/park/node36.html
@@ -46,10 +46,11 @@ Double_t KM(TH1D *his,Float_t Start, Short_t Rev)
 
   printf("I1=%f, I2=%f It=%f (dx=%e, expI1=%e)\n",I1,I2,It, dx,TMath::Exp(I1));
   return (TMath::Exp(I1)/(1-I2));
-}
+
+} // KM
 
 
-Double_t KAlpha(Double_t E, Short_t Charg, Int_t which)
+Double_t KAlpha( Double_t E, Short_t Charg, Int_t which )
 {
   // Function calculates impact ionization coefficientf
   // for a given E [V/um]. 
@@ -59,12 +60,12 @@ Double_t KAlpha(Double_t E, Short_t Charg, Int_t which)
   //                 ---> 10 -> diamond Trew parametrization
   //                 ---> 11 -> diamond Watanabe parametrization
   //                 ---> 12 -> diamond Hiraiwa parametrization
-  
+
   Double_t  alp,A,B,a=TMath::Sqrt(10),b=TMath::Sqrt(10);
- 
+
   switch(which)
     {
-    case 0:  //
+    case 0:  // silicon
       if(Charg>0)
 	alp=1.3e-3*TMath::Exp(-13.2*(2e7/(E*1e6)-1));
       else
@@ -100,9 +101,9 @@ Double_t KAlpha(Double_t E, Short_t Charg, Int_t which)
 
 ClassImp(KMaterial)
 
-Int_t KMaterial::Mat=1;
+Int_t KMaterial::Mat = 1; // silicon
 Float_t KMaterial::Temperature=293;
-Int_t KMaterial::Mobility=1;
+Int_t KMaterial::Mobility = 1; // Canali
 Int_t KMaterial::ImpactIonization=0;
 
 Float_t KMaterial::Perm(Int_t Material)
@@ -136,13 +137,13 @@ Int_t KMaterial::MobMod()
 }
 
 
-Float_t KMaterial::dEX(Double_t E,Double_t *x, Double_t *y,Double_t eps)
+Float_t KMaterial::dEX( Double_t E, Double_t *x, Double_t *y, Double_t eps )
 {
   Int_t k=0;
   Float_t E0=E,p=0;
   Double_t xx=0,dE;
   eps=eps*1e-4;
-  KMaterial::Mat=2;
+  KMaterial::Mat=2; // SiO2
   while(E>0.6)
     { 
       dE=dEdx(E)*eps;
@@ -166,11 +167,11 @@ Float_t KMaterial::dEX(Double_t E,Double_t *x, Double_t *y,Double_t eps)
 Double_t KMaterial::dEdx(Double_t E)
 {
   Double_t konst=0.1535; 
-  Double_t A=28.086; //atomic mass of the material
-  Double_t Z=14; //athomic number of material
+  Double_t A=28.086; //atomic mass Si
+  Double_t Z=14; //atomic number Si
   Double_t rho=2.33; //density of silicon
   Double_t z=2;  //alpha particles;
-  Double_t mass=3727; //alpha particles;
+  Double_t mass=3727; //alpha particles [MeV]
   Double_t me=0.511; //alpha particles;
 
   Double_t C0=-4.44,a=0.1492,m=3.25;
@@ -185,7 +186,7 @@ Double_t KMaterial::dEdx(Double_t E)
   Double_t X=TMath::Log10(eta);
   Double_t delta=0;
   Double_t dE;
-  Double_t I = (9.76 * Z + 58.8 * TMath::Power(Z,-0.19)) * 1e-6;
+  Double_t I = (9.76 * Z + 58.8 * TMath::Power(Z,-0.19)) * 1e-6; // Ionisation energy [MeV]
 
   if(X<X0) delta=0; 
   if(X0<X && X<X1) delta=4.6052*X+C0+a*TMath::Power((X1-X),m); 
@@ -193,7 +194,7 @@ Double_t KMaterial::dEdx(Double_t E)
 
   Double_t logarg=2*me*eta*eta*Wmax/(I*I);
   //  printf("logarg=%e %e %e :::::::: ",logarg,TMath::Log(logarg) , I);
-  dE=konst*Z/A*TMath::Power(z/beta,2)*rho*(TMath::Log(logarg)-2*beta*beta-delta-2*C/Z);
+  dE=konst*Z/A*TMath::Power(z/beta,2)*rho*(TMath::Log(logarg)-2*beta*beta-delta-2*C/Z); // Bethe-Bloch
 
   return(-dE);
 
