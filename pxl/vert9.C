@@ -105,7 +105,7 @@ void vert3( double Vbias = 800 )
   det->Draw( "EZxz", 1.5*py )->Draw("COLZ");
   cEZ.Update();
 
-  TH1F * field = det->Draw1D( "EZxz1", 1.5*py, 2, 1.5*px );
+  TH1D * field = det->Draw1D( "EZxz1", 1.5*py, 2, 1.5*px );
 
   cout << "E-field points " << field->GetNbinsX() << endl;
   double Temp = det->Temperature;
@@ -160,7 +160,7 @@ void vert3( double Vbias = 800 )
 
   TCanvas cWP1;
   cWP1.SetTitle("W vs z");
-  TH1F * wpot = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px );
+  TH1D * wpot = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px );
   wpot->Draw();  
   cWP1.Update();
 

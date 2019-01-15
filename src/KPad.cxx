@@ -177,7 +177,7 @@ void KPad::GetRamoField()
 }
 
 
-void KPad::GetRamoField(TH1F *rf)
+void KPad::GetRamoField(TH1D *rf)
 {
 
   Int_t i,j;
@@ -223,7 +223,7 @@ void KPad::GetField()
 }
 
 
-void KPad::GetField(TH1F *rf)
+void KPad::GetField(TH1D *rf)
 {
   Int_t i,j;
   Double_t *x=new Double_t [nx*ny+1];
@@ -319,7 +319,7 @@ Double_t laser(Double_t *x, Double_t *par)
 //   // A penetration profile  is devided into Int_ div buckets. Each bucket is drifted in the field. The
 //   // induced currents for each carrier is calculated as the sum  all buckets. 
 
-// TH1F trn[4],trp[4];
+// TH1D trn[4],trp[4];
 // Float_t sp[3];;
 // DStruct seg;
 // Double_t MaxPudu=2.7,pudu=0.;
@@ -331,9 +331,9 @@ Double_t laser(Double_t *x, Double_t *par)
 // Double_t cd;
 
 // float xe,xs;//= new Double_t[cutoff]; 
-//  TH1F *histop  = new TH1F("chl+","charge+",200,0,STEPH);
-//  TH1F *histon  = new TH1F("chl-","charge-",200,0,STEPH);
-//  TH1F *outhisp,*outhisn;
+//  TH1D *histop  = new TH1D("chl+","charge+",200,0,STEPH);
+//  TH1D *histon  = new TH1D("chl-","charge-",200,0,STEPH);
+//  TH1D *outhisp,*outhisn;
 
 //  Double_t par[6]={-0.038553,1.07634,1.14664,1.54445e-2,-6.08484e-3,6.08802e-4};
 //  TF1 *las=new TF1("laser",laser,0,5,6);

@@ -988,11 +988,11 @@ void KDetector::MipIR( Int_t ndiv )
       << ", " << pos->GetXaxis()->GetXmax()
       << std::endl << std::flush;
 
-  TH1F * histop = new
-    TH1F( "chp", "charge+ vs time",
+  TH1D * histop = new
+    TH1D( "chp", "charge+ vs time",
 	  pos->GetNbinsX(), pos->GetXaxis()->GetXmin(), pos->GetXaxis()->GetXmax() );
-  TH1F * histon  = new
-    TH1F( "chm", "charge- vs time",
+  TH1D * histon  = new
+    TH1D( "chm", "charge- vs time",
 	  neg->GetNbinsX(), neg->GetXaxis()->GetXmin(), neg->GetXaxis()->GetXmax() ); 
 
   sum->Reset();
@@ -1172,7 +1172,7 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
     if( nz == 1 )
       KHisProject( EG, 3, how )->Draw( "COL" );
     else {
-      TH3F * hh = GetGeom();
+      TH3D * hh = GetGeom();
       hh->SetFillColor(color);
       hh->SetTitle( "drift display" );
       hh->Draw( "iso" );
@@ -1235,7 +1235,7 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
 } // ShowMipIR
 
 //------------------------------------------------------------------------------
-TH2F * KDetector::Draw( std::string option, Float_t proj )
+TH2D * KDetector::Draw( std::string option, Float_t proj )
 {
   //The function draws weighting and electric field and also the event display
   // Char_t *option:
@@ -1258,8 +1258,8 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
   // Float_t proj; position along the axis of projection
 
   KField *cf;
-  TH3F   *ch;
-  TH2F * histo = new TH2F();
+  TH3D   *ch;
+  TH2D * histo = new TH2D();
   TString opt(option);
 
   Int_t i = 0;
@@ -1302,9 +1302,9 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
       }
   } 
   else {
-    if( What == 3 ) ch = (TH3F *)EG;  
-    if( What == 4 ) ch = (TH3F *)DM;  
-    if( What == 5 ) ch = (TH3F *)NeffH;  
+    if( What == 3 ) ch = (TH3D *)EG;  
+    if( What == 4 ) ch = (TH3D *)DM;  
+    if( What == 5 ) ch = (TH3D *)NeffH;  
   }
 
   if( nz == 1 )
@@ -1334,7 +1334,7 @@ TH2F * KDetector::Draw( std::string option, Float_t proj )
 } // Draw
 
 //------------------------------------------------------------------------------
-TH1F * KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t pos )
+TH1D * KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t pos )
 {
   // Draws the 1D projection of the Field
   // Char_t option;  see ::Draw()
@@ -1342,7 +1342,7 @@ TH1F * KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t 
   // Int_t axis;     0=x, 1=y, 2=z;
   // Float_t pos;    position along the missing coordinate if 2D z=0.5;
 
-  TH2F * h2 = Draw( option, proj );
+  TH2D * h2 = Draw( option, proj );
 
   Int_t iter;
   Float_t low,up;
@@ -1358,8 +1358,8 @@ TH1F * KDetector::Draw1D( std::string option, Float_t proj, Int_t axis, Float_t 
     low = h2->GetYaxis()->GetBinLowEdge(1);
   }
 
-  TH1F * h1 = new
-    TH1F( Form( "field_%i", GetNhs() ),
+  TH1D * h1 = new
+    TH1D( Form( "field_%i", GetNhs() ),
 	  Form( "field along dimension %i at %i and %i",
 		axis+1, int(pos), int(proj) ),
 	  iter, low, up );
@@ -1440,11 +1440,11 @@ void KDetector::CalM( KStruct *seg, Double_t *data, Int_t CarrierType )
 void KDetector::SetDriftHisto( Float_t x, Int_t numbins )
 {
   if( pos != NULL ) delete pos;
-  pos = new TH1F( "qpos", "hole signal", numbins, 0, x );
+  pos = new TH1D( "qpos", "hole signal", numbins, 0, x );
   if( neg != NULL ) delete neg;
-  neg = new TH1F( "qneg", "electron signal", numbins, 0, x ); 	
+  neg = new TH1D( "qneg", "electron signal", numbins, 0, x ); 	
   if( sum != NULL ) delete sum;
-  sum = new TH1F( "charge", "sum signal", numbins, 0, x ); 
+  sum = new TH1D( "charge", "sum signal", numbins, 0, x ); 
 
   sum->SetXTitle( "t [ns]" );
   neg->SetXTitle( "t [ns]" );
@@ -1462,16 +1462,18 @@ void KDetector::SetDriftHisto( Float_t x, Int_t numbins )
 }
 
 //------------------------------------------------------------------------------
-void  KDetector::Save( std::string name, std::string file )
+void  KDetector::Save( std::string name, std::string file, bool all=1 )
 {
-  Char_t str[100];
   TFile * fn = new TFile( file.c_str(), "UPDATE" );
 
   std::cout << "Writing fields to " << file << std::endl;
 
+  Char_t str[100];
   sprintf( str, "E_%s", name.c_str() );
-  if( Real.U != NULL )
-    Real.U->Write(str);
+  if( Real.U != NULL ) {
+    if( all )
+      Real.U->Write(str);
+  }
   else {
     printf( "Histogram U (Electric) does not exist!\n" );
     return;
@@ -1484,16 +1486,20 @@ void  KDetector::Save( std::string name, std::string file )
   }
 
   sprintf( str, "G_%s", name.c_str() );
-  if( EG != NULL )
-    EG->Write(str);
+  if( EG != NULL ) {
+    if( all )
+      EG->Write(str);
+  }
   else {
     printf( "Histogram Geometry does not exist!\n" );
     return;
   }
 
   sprintf( str, "M_%s", name.c_str() );
-  if( DM != NULL )
-    DM->Write(str);
+  if( DM != NULL ) {
+    if( all )
+      DM->Write(str);
+  }
   else {
     printf( "Histogram Material does not exist!\n" );
     return;
@@ -1504,23 +1510,25 @@ void  KDetector::Save( std::string name, std::string file )
 } // Save
 
 //------------------------------------------------------------------------------
-TFile * KDetector::Read( std::string name, std::string file )
+TFile * KDetector::Read( std::string name, std::string file, bool all=1 )
 {
   TFile * fn = new TFile( file.c_str() );
 
   Char_t str[100];
 
   if( Real.U == NULL )
-    Real.U = new TH3F();
-  sprintf( str, "E_%s", name.c_str() );
-  std::cout << "read " << str << std::endl;
-  Real.U->Read(str);
+    Real.U = new TH3D();
+  if( all ) {
+    sprintf( str, "E_%s", name.c_str() );
+    std::cout << "read " << str << std::endl;
+    Real.U->Read(str);
+  }
 
   for( int ipx = 0; ipx < 99; ++ipx ) {
     sprintf( str,"W_%i_%s", ipx, name.c_str() );
     if( fn->GetKey(str) ) {
       if( Ramo[ipx].U == NULL )
-	Ramo[ipx].U = new TH3F();
+	Ramo[ipx].U = new TH3D();
       std::cout << "read " << str << std::endl;
       Ramo[ipx].U->Read(str);
     }
@@ -1530,21 +1538,27 @@ TFile * KDetector::Read( std::string name, std::string file )
 
   if( EG == NULL )
     EG = new TH3I();
-  sprintf( str, "G_%s", name.c_str() );
-  std::cout << "read " << str << std::endl;
-  EG->Read(str);
+  if( all ) {
+    sprintf( str, "G_%s", name.c_str() );
+    std::cout << "read " << str << std::endl;
+    EG->Read(str);
+  }
 
   if( DM == NULL )
     DM = new TH3I();
-  sprintf( str, "M_%s", name.c_str() );
-  std::cout << "read " << str << std::endl;
-  DM->Read(str);
+  if( all ) {
+    sprintf( str, "M_%s", name.c_str() );
+    std::cout << "read " << str << std::endl;
+    DM->Read(str);
+  }
 
-  nx = EG->GetNbinsX();
-  ny = EG->GetNbinsY();
-  nz = EG->GetNbinsZ();
+  nx = Ramo[0].U->GetNbinsX();
+  ny = Ramo[0].U->GetNbinsY();
+  nz = Ramo[0].U->GetNbinsZ();
 
-  Real.CalField(); // E = -grd U
+  if( all )
+    Real.CalField(); // E = -grd U
+
   //Ramo[0].CalField(); DP: not needed for KPixel
 
   return fn;

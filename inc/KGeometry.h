@@ -1,10 +1,10 @@
 #ifndef _KGeometry
 #define _KGeometry
 
-#include "TH3I.h"
-#include "TH2F.h"
+#include "TH3.h"
+#include "TH2.h"
 
-TH2F * KHisProject( void *,Int_t , Int_t );
+TH2D * KHisProject( void *,Int_t , Int_t );
 int GetNhs();
 
 class KGeometry {
@@ -33,10 +33,10 @@ class KGeometry {
   Double_t GetStepSize( Int_t, Float_t );
 
   // Mapping and projections
-  //  TH2F *ProjectToGeometry(void *,Int_t,Int_t);
+  //  TH2D *ProjectToGeometry(void *,Int_t,Int_t);
   //  Double_t InterpolateToGeometry();
-  TH3F * MapToGeometry( Double_t *, Double_t = 1 );
-  TH3F * GetGeom();
+  TH3D * MapToGeometry( Double_t *, Double_t = 1 );
+  TH3D * GetGeom();
   void Reset( Int_t = 0, Int_t = 0 );
 
   // Electrodes generators

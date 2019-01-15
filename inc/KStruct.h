@@ -47,8 +47,8 @@ class KStruct {
   void Clear();
   void Info();
   void Draw( Char_t *);
-  void GetCH( TH1F *, Int_t=0, Float_t=1, Float_t=-1 );
-  Float_t GetCHMult( TH1F *, Int_t=0, Float_t=1, Float_t=-1 );
+  void GetCH( TH1D *, Int_t=0, Float_t=1, Float_t=-1 );
+  Float_t GetCHMult( TH1D *, Int_t=0, Float_t=1, Float_t=-1 );
   //void GetGraph(TGraph *,Int_t=0);
   TH1D *GetElFieldAlongTheDrift();
  

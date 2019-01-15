@@ -31,7 +31,7 @@
 #include "TLine.h"
 #include "TF3.h"
 #include "KStruct.h"
-#include "TH3S.h"
+#include "TH3.h"
 #include "KGeometry.h"
 #include "KMaterial.h"
 #include "KField.h"
@@ -53,7 +53,7 @@ public:
 
   // Definition of space charge
   TF3  * NeffF;     //effective dopping concentration function
-  TH3F * NeffH;     //effective dopping concentration histogram
+  TH3D * NeffH;     //effective dopping concentration histogram
 
   // Weigthing, electric and magnetic field
   KField Ramo[99];   // Ramo weighting potential per readout node (DP)
@@ -79,9 +79,9 @@ public:
   Float_t SStep;       // Simulation step size;
 
   // Output histograms
-  TH1F *pos;           // contribution of the holes to the total drift current
-  TH1F *neg;           // contribution of the electrons  to the total drift current
-  TH1F *sum;	       // total drift current
+  TH1D *pos;           // contribution of the holes to the total drift current
+  TH1D *neg;           // contribution of the electrons  to the total drift current
+  TH1D *sum;	       // total drift current
   Double_t qnode[99];  // induced charge per node (DP)
 
   // Constructors and destructor
@@ -104,7 +104,7 @@ public:
   // Calculation in case of any changes
   void SetVoltage(Float_t x,Int_t calnow=1) {Voltage=x; if(calnow) CalPhyField(); };
   void SetNeff(TF3 *neff,Int_t calnow=1) {NeffF=neff; if(calnow) CalPhyField(); };
-  void SetNeff(TH3F *neff,Int_t calnow=1) {NeffH=neff; if(calnow) CalPhyField(); };
+  void SetNeff(TH3D *neff,Int_t calnow=1) {NeffH=neff; if(calnow) CalPhyField(); };
 
   // Simulation of drift
 
@@ -118,12 +118,12 @@ public:
   void CalM(KStruct *seg, Double_t *data, Int_t=-1); //multiplication calculation
 
   // visualization
-  TH2F *Draw( std::string, Float_t=1 );
-  TH1F *Draw1D( std::string, Float_t ,Int_t ,Float_t );
+  TH2D *Draw( std::string, Float_t=1 );
+  TH1D *Draw1D( std::string, Float_t ,Int_t ,Float_t );
 
   // Save,read and debug
-  void  Save( std::string, std::string );
-  TFile *Read( std::string, std::string );
+  void  Save( std::string, std::string, bool );
+  TFile *Read( std::string, std::string, bool );
   void  SetDebug( Short_t x ) { Debug = x; };
 
   // precision of drift

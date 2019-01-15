@@ -15,11 +15,11 @@
 #include "math.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "TH3F.h"
-#include "TH2F.h"
+#include "TH3.h"
+#include "TH2.h"
 #include "TVector3.h"
 
-Float_t KInterpolate2D( TH3F *, Float_t ,Float_t, Int_t=3, Int_t=1 );
+Float_t KInterpolate2D( TH3D *, Float_t ,Float_t, Int_t=3, Int_t=1 );
 
 //class KField : public KGeometry {
 class KField {
@@ -29,11 +29,11 @@ class KField {
   Int_t dim;
 
 public:
-  TH3F *U;
-  TH3F *Ex;
-  TH3F *Ey;
-  TH3F *Ez;
-  TH3F *E;
+  TH3D *U;
+  TH3D *Ex;
+  TH3D *Ey;
+  TH3D *Ez;
+  TH3D *E;
 
   KField() { U = NULL; Ex = NULL; Ey = NULL; Ez = NULL; E = NULL; };
   ~KField();
@@ -47,7 +47,7 @@ public:
   Double_t Mobility(Float_t cx,Float_t cy,Float_t cz, Float_t T,Float_t Charg,Double_t Neff, Int_t which);
   Float_t DriftVelocity(Float_t E,Float_t Charg, Float_t T, Double_t Neff, Int_t which);
   Float_t DriftVelocity(Float_t cx,Float_t cy,Float_t cz, Float_t Charg, Float_t T, Double_t Neff, Int_t which);
-  TH2F *Draw(Char_t *opt,Int_t=3, Int_t=1);
+  TH2D *Draw(Char_t *opt,Int_t=3, Int_t=1);
   // Double_t Alpha(Double_t , Short_t , Int_t=0);
   // inline static Double_t alpha(Double_t E) {return Alpha(E,-1,0);} 
   // inline static Double_t beta(Double_t E) {return Alpha(E,1,0);} 

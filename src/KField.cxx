@@ -4,7 +4,7 @@
 #include <iostream> // cout
 
 //------------------------------------------------------------------------------
-Float_t KInterpolate2D( TH3F *his, Float_t x, Float_t y, Int_t dir, Int_t bin )
+Float_t KInterpolate2D( TH3D *his, Float_t x, Float_t y, Int_t dir, Int_t bin )
 {
   Int_t EX1,EX2,EY1,EY2;
   Float_t t,u,ret;
@@ -117,22 +117,22 @@ Int_t KField::CalField() // E = -grd U
   else
     dim = 3;
 
-  Ex = new TH3F();
+  Ex = new TH3D();
   U->Copy(*Ex);
   Ex->Reset();
   //Ex->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
-  Ey = new TH3F();
+  Ey = new TH3D();
   U->Copy(*Ey);
   Ey->Reset();
   //Ey->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
-  Ez = new TH3F();
+  Ez = new TH3D();
   U->Copy(*Ez);
   Ez->Reset();
   //Ez->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
 
-  E = new TH3F();
+  E = new TH3D();
   U->Copy(*E);
   E->Reset();
   //E->SetTitle( Form( "%s_%i", U->GetName(), GetNhs() ) );
@@ -399,31 +399,38 @@ Double_t KField::Mobility( Float_t E, Float_t T, Float_t Charg, Double_t Neff, I
     case 3: // Klanner Scharf
       Double_t bb,cc,E0;
       if( Charg > 0 ) {
-	E0=2970*TMath::Power(T/300,5.63);
-	bb=9.57e-8*TMath::Power(T/300,-0.155);
-	cc=-3.24e-13;
-	lfm=457*TMath::Power(T/300,-2.80);
-	if(E>E0) hfm=1./(1/lfm+bb*(E-E0)+cc*TMath::Power(E-E0,2)); else hfm=lfm;
+	E0 = 2970 * TMath::Power(T/300,5.63);
+	bb = 9.57e-8 * TMath::Power(T/300,-0.155);
+	cc = -3.24e-13;
+	lfm = 457 * TMath::Power(T/300,-2.80);
+	if( E > E0 )
+	  hfm= 1./( 1/lfm+bb*(E-E0) + cc*TMath::Power(E-E0,2) );
+	else
+	  hfm=lfm;
       }
       else {
-	E0=2970*TMath::Power(T/300,5.63);
-	lfm=1430*TMath::Power(T/300,-1.99);
-	vsatn=1.05e7*TMath::Power(T/300,-3.02);
-	if(E>E0) hfm=1./(1/lfm+1/vsatn*(E-E0)); else hfm=lfm;
+	E0 = 2970 * TMath::Power( T/300, 5.63 );
+	lfm = 1430 * TMath::Power( T/300, -1.99 );
+	//vsatn = 1.05e7*TMath::Power( T/300, -3.02 ); // wrong
+	vsatn = 1.05e7 * TMath::Power( T/300, -0.302 ); // bug fix J.S. 9.Jan 2019
+	if( E > E0 )
+	  hfm = 1./( 1/lfm + 1/vsatn*(E-E0) );
+	else
+	  hfm=lfm;
       }
       break;
     case 4:   // Jacoboni
       if( Charg > 0 ) {
-	lfm = 474 * TMath::Power(T/300., -2.619);
-	vsatp = 0.940e7  * TMath::Power(T/300., -0.226);
-	betap = 1.181 * TMath::Power(T/300., 0.633 ); // <100> orientation
-	hfm=lfm/TMath::Power(1+TMath::Power(lfm*E/vsatp,betap),1/betap);
+	lfm = 474 * TMath::Power( T/300., -2.619 );
+	vsatp = 0.940e7  * TMath::Power( T/300., -0.226 );
+	betap = 1.181 * TMath::Power( T/300., 0.633 ); // <100> orientation
+	hfm = lfm / TMath::Power( 1 + TMath::Power( lfm*E/vsatp, betap ), 1/betap );
       }
       else {
-	lfm = 1440*  TMath::Power(T/300., -2.260);
-	vsatn = 1.054e7  *  TMath::Power(T/300., -0.602);
-	betan = 0.992 *  TMath::Power(T/300., 0.572); // <100> orientation
-	hfm=lfm/TMath::Power(1+TMath::Power(lfm*E/vsatn,betan),1/betan);
+	lfm = 1440 * TMath::Power( T/300., -2.260 );
+	vsatn = 1.054e7 * TMath::Power( T/300., -0.602 );
+	betan = 0.992 *  TMath::Power( T/300., 0.572 ); // <100> orientation
+	hfm = lfm / TMath::Power( 1 + TMath::Power( lfm*E/vsatn, betan ), 1/betan );
       }
       break;
     case 9:
@@ -449,9 +456,9 @@ Double_t KField::Mobility( Float_t E, Float_t T, Float_t Charg, Double_t Neff, I
 } // Mobility
 
 //------------------------------------------------------------------------------
-TH2F * KField::Draw( Char_t *opt, Int_t b1, Int_t b2 )
+TH2D * KField::Draw( Char_t *opt, Int_t b1, Int_t b2 )
 {
-  TH2F * ret = NULL;
+  TH2D * ret = NULL;
   if( !strcmp( "U", opt ) ) ret = KHisProject( U,  b1, b2 );
   if( !strcmp( "E", opt ) ) ret = KHisProject( E,  b1, b2 );
   if( !strcmp( "X", opt ) ) ret = KHisProject( Ex, b1, b2 );

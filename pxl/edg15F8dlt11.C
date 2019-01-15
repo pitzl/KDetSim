@@ -238,7 +238,7 @@ void edg15F8( double Vbias = 300 ) */
   det->Draw( "EZyz", 2.5*px )->Draw("COLZ");
   cEZY.Update();
 
-  TH1F * field = det->Draw1D( "EZxz1", 1.5*py, 2, 2.5*px );
+  TH1D * field = det->Draw1D( "EZxz1", 1.5*py, 2, 2.5*px );
 
   cout << "E-field points " << field->GetNbinsX() << endl;
   double Temp = det->Temperature;
@@ -328,9 +328,9 @@ void edg15F8( double Vbias = 300 ) */
 
   TCanvas cWP1;
   cWP1.SetTitle("W vs z");
-  TH1F * wpot1 = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px ); // Ramo[0] left
+  TH1D * wpot1 = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px ); // Ramo[0] left
   wpot1->Draw();  
-  TH1F * wpot2 = det->Draw1D( "WPxz1", 1.5*py, 2, 2.5*px ); // Ramo[0] mid
+  TH1D * wpot2 = det->Draw1D( "WPxz1", 1.5*py, 2, 2.5*px ); // Ramo[0] mid
   wpot2->Draw("same");  
   cWP1.Update();
 

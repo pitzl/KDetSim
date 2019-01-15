@@ -137,13 +137,12 @@ void edg15F8( double Vbias = 300 ) */
     det->SetBoundaryConditions(); // KGeometry, fills EG
     det->CalField(0); // KDetector E-field
   }
-  else {
+  else
     det->Read( "edg15F8", // model
 	       Form( "edg15_px%d_F%d_dlt%d_V%d_fields.root",
 		     int( px + 0.2 ), int( F + 0.1 ),
 		     int( dlt*250/Vbias*1e4 + 0.2 ),
 		     int(Vbias+0.1) ) ); // model and file
-  }
 
   // det->Read opens a root file
   // new file must be defined afterwards...
@@ -160,7 +159,7 @@ void edg15F8( double Vbias = 300 ) */
   det->Draw( "EZxz", 1.5*py )->Draw("COLZ");
   cEZ.Update();
 
-  TH1F * field = det->Draw1D( "EZxz1", 1.5*py, 2, 2.5*px );
+  TH1D * field = det->Draw1D( "EZxz1", 1.5*py, 2, 2.5*px );
 
   cout << "E-field points " << field->GetNbinsX() << endl;
   double Temp = det->Temperature;
@@ -246,9 +245,9 @@ void edg15F8( double Vbias = 300 ) */
 
   TCanvas cWP1;
   cWP1.SetTitle("W vs z");
-  TH1F * wpot1 = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px ); // Ramo[0] left
+  TH1D * wpot1 = det->Draw1D( "WPxz1", 1.5*py, 2, 1.5*px ); // Ramo[0] left
   wpot1->Draw();  
-  TH1F * wpot2 = det->Draw1D( "WPxz1", 1.5*py, 2, 2.5*px ); // Ramo[0] mid
+  TH1D * wpot2 = det->Draw1D( "WPxz1", 1.5*py, 2, 2.5*px ); // Ramo[0] mid
   wpot2->Draw("same");  
   cWP1.Update();
 

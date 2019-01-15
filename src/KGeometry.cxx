@@ -172,9 +172,9 @@ Int_t KGeometry::SetBoundaryConditions()
 
 //------------------------------------------------------------------------------
 // map NR vector x into 3D field
-TH3F * KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
+TH3D * KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
 {
-  TH3F *fhis = new TH3F();
+  TH3D *fhis = new TH3D();
   EG->Copy(*fhis);
   fhis->Reset();
 
@@ -186,7 +186,7 @@ TH3F * KGeometry::MapToGeometry( Double_t *x, Double_t Scale )
   //   Double_t by=EG->GetYaxis()->GetBinLowEdge(1);
   //   Double_t bz=EG->GetZaxis()->GetBinLowEdge(1);
 
-  //   TH3F *fhis=new TH3F("Pot3d","Pot3d",nx,bx,xb,ny,by,yb,nz,bz,zb);
+  //   TH3D *fhis=new TH3D("Pot3d","Pot3d",nx,bx,xb,ny,by,yb,nz,bz,zb);
 
   for( int k = 1; k <= nz; ++k )
     for( int j = 1; j <= ny; ++j )
@@ -390,9 +390,9 @@ void KGeometry::ElCylinder(Float_t *Pos,Float_t R, Float_t L,Int_t O, Int_t Wei,
 }
 
 //------------------------------------------------------------------------------
-TH3F * KGeometry::GetGeom()
+TH3D * KGeometry::GetGeom()
 {
-  TH3F * dhis = new TH3F();
+  TH3D * dhis = new TH3D();
 
   EG->Copy(*dhis);
   dhis->SetName( Form( "%s_%i", EG->GetName(), GetNhs() ) );
@@ -413,11 +413,11 @@ TH3F * KGeometry::GetGeom()
 }
 
 //------------------------------------------------------------------------------
-TH2F * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
+TH2D * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
 {
   //Projects any quantity maped to geometry in different views
 
-  TH3F * his = (TH3F *) hisIn;
+  TH3D * his = (TH3D *) hisIn;
 
   Int_t Nx = his->GetNbinsX();
   Int_t Ny = his->GetNbinsY();
@@ -442,11 +442,11 @@ TH2F * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
     //    printf("x:: %d %f\n",i,Zbins[i]);
   }
 
-  TH2F *his2D;
+  TH2D *his2D;
   switch(axis)
     {
     case 1:
-      his2D = new TH2F( Form( "YZ_%i", GetNhs() ),
+      his2D = new TH2D( Form( "YZ_%i", GetNhs() ),
 			Form( "YZ plane at x %f", his->GetXaxis()->GetBinCenter(Bin1) ),
 			Ny, Ybins, Nz, Zbins );
       for( int i = 1; i <= Ny; ++i )
@@ -456,7 +456,7 @@ TH2F * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
       his2D->GetYaxis()->SetTitle("z [#mum]");
       break;
     case 2:
-      his2D = new TH2F( Form( "XZ_%i", GetNhs() ),
+      his2D = new TH2D( Form( "XZ_%i", GetNhs() ),
 			Form( "XZ plane at y %f", his->GetYaxis()->GetBinCenter(Bin1) ),
 			Nx, Xbins, Nz, Zbins );
       for( int i = 1; i <= Nx; ++i )
@@ -466,7 +466,7 @@ TH2F * KHisProject( void * hisIn, Int_t axis, Int_t Bin1 )
       his2D->GetYaxis()->SetTitle("z [#mum]");
       break;
     case 3:
-      his2D = new TH2F( Form( "XY_%i", GetNhs() ),
+      his2D = new TH2D( Form( "XY_%i", GetNhs() ),
 			Form( "XY plane at z %f", his->GetZaxis()->GetBinCenter(Bin1) ),
 			Nx, Xbins, Ny, Ybins );
       for( int i = 1; i <= Nx; ++i )

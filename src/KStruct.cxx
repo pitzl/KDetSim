@@ -64,7 +64,7 @@ void KStruct::Draw( Char_t *option )
 }
 
 //------------------------------------------------------------------------------
-void KStruct::GetCH( TH1F *histo, Int_t Update, Float_t scale, Float_t tau )
+void KStruct::GetCH( TH1D *histo, Int_t Update, Float_t scale, Float_t tau )
 {
   // Float_t tau;  trapping time [ns]
 
@@ -81,7 +81,7 @@ void KStruct::GetCH( TH1F *histo, Int_t Update, Float_t scale, Float_t tau )
     ch[i] = Charge[i];
   }
 
-  TH1F * his = new TH1F( "ch", "Charge vs time",
+  TH1D * his = new TH1D( "ch", "Charge vs time",
 			 histo->GetNbinsX(),
 			 histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax() );
 
@@ -115,7 +115,7 @@ void KStruct::GetCH( TH1F *histo, Int_t Update, Float_t scale, Float_t tau )
 } // GetCH
 
 //------------------------------------------------------------------------------
-Float_t KStruct::GetCHMult( TH1F *histo, Int_t Update, Float_t scale, Float_t tau )
+Float_t KStruct::GetCHMult( TH1D *histo, Int_t Update, Float_t scale, Float_t tau )
 {
   //   Float_t tau;  trapping time [s]
 
@@ -172,8 +172,8 @@ Float_t KStruct::GetCHMult( TH1F *histo, Int_t Update, Float_t scale, Float_t ta
 
   } // steps
 
-  TH1F * his = new
-    TH1F( "ch", "Charge vs time",
+  TH1D * his = new
+    TH1D( "ch", "Charge vs time",
 	  histo->GetNbinsX(), histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax() );
 
   his->FillN( Steps, &ti[1], &ch[1] );

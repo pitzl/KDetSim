@@ -49,8 +49,8 @@ public:
  
    TGraph   *DrawPad(char*);
    void CalField(Int_t what) {if(what==1) GetRamoField(); else GetField();}
-   void GetRamoField(TH1F *rf);
-   void GetField(TH1F *rf);
+   void GetRamoField(TH1D *rf);
+   void GetField(TH1D *rf);
    void GetField(TF1 *rf);
    void    GetField();
    void    GetRamoField();
