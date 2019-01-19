@@ -1,8 +1,8 @@
 
 // Daniel Pitzl, Jan 2019
-// edge-on, irradiated, 3x3 pix
+// edge-on, irradiated, 3x3 pix phase I
 
-// root -l edg9F6.C
+// root -l edg9F2.C
 
 // gSystem->Load( "/home/pitzl/silicon/KDetSim/lib/KDetSim.sl" );
 
@@ -15,7 +15,7 @@
 
 #include "../inc/KPixel.h"
 
-void edg9F6( double Vbias = 800 )
+void edg9F2( double Vbias = 800 )
 {
   gStyle->SetTitleFont( 62, "XYZ" ); // 62 = Helvetica bold
   gStyle->SetLabelFont( 62, "XYZ" );
@@ -29,8 +29,10 @@ void edg9F6( double Vbias = 800 )
 
   gStyle->SetHistFillStyle(0); // 1001 = solid
 
-  gStyle->SetStatX(0.5); // right edge of Stat box
+  gStyle->SetOptStat(1);
+  gStyle->SetStatX(0.4); // right edge of Stat box
   gStyle->SetStatY(0.9); // top   edge of Stat box
+  gROOT->ForceStyle();
 
   double eps_0 = 8.854187817e-14; // [F/cm]
   double eps_Si = 11.7;
@@ -39,13 +41,14 @@ void edg9F6( double Vbias = 800 )
 
   // Geo: doRamo if you change!
 
-  double px =  50; // [um] combine two, for shallow charge at 800V
-  double py = 100; // [um]
-  double pz = 154; // [um] doRamo !
+  double px = 450; // [um] // double px
+  double py = 100; // [um] shoot along 100
+  //double pz = 288; // [um] double even, doRamo !
+  double pz = 284; // [um] double even, doRamo !
 
   KPixel * det = new KPixel( 9, 3*px, 3*py, pz ); // pixel, [um]
 
-  det->SetUpVolume( 1.0, 2.0, 1.0 ); // um cubes (speed vs granularity)
+  det->SetUpVolume( 6, 4, 2 ); // um cubes (speed vs granularity)
 
   //                  center             half-implant    depth [um]
   det->SetUpPixel( 0, 0.5*px,  0.5*py, 0.45*px, 0.45*py, 1,     1 ); // Grnd
@@ -62,118 +65,98 @@ void edg9F6( double Vbias = 800 )
 
   // N0 exp(-z/dlt):
 
-  double dlt = 9 * Vbias/250; // [um]
+  double dlt = 11 * Vbias/250; // [um] at 275 V
+  //double dlt = 16 * Vbias/250; // [um] at 325 V
 
-  double N0 = 2010 * 250/Vbias; // [1/um^3] tune at 150V: dj 0, mob4: mdy 1.24
+  //double N0 = 2240; // [1/um^3] at 225V, dtl 9, pow 4, scale 1/dlt^2 at fixed Vbias
+  //double N0 = 2290; // [1/um^3] at 225V, dlt 9, pow 2, scale 1/dlt^2 at fixed Vbias
+  //double N0 = 1855; // [1/um^3] at 225V, dlt 10, pow 2, scale 1/dlt^2 at fixed Vbias
+  //double N0 = 1505; // [1/um^3] at 225V, dlt 11, pow 3, scale 1/dlt^2 at fixed Vbias
+  double N0 = 1520; // [1/um^3] at 225V, dlt 11, pow 2, scale 1/dlt^2 at fixed Vbias: mdy 0.254
 
-  if( Vbias > 180 )
-    N0 = 1982 * 250/Vbias; // [1/um^3] tune at 200V: dj 0, mob4: mdy 1.06
+  if( Vbias > 270 )
+    N0 = 1216; // dlt 11, pow 3: mdy 0.217 ke
 
-  if( Vbias > 230 )
-    N0 = 1960 * 250/Vbias; // [1/um^3] tune at 250V: dj 0, mob4: mdy 1.86
+  if( Vbias > 320 )
+    N0 =  996; // dlt 11, pwr 4, dj 5.3: mdy 0.195
+  //N0 = 1010; // dlt 11, pwr 3: mdy 0.194
 
-  if( Vbias > 280 )
-    N0 = 1955 * 250/Vbias; // [1/um^3] tune at 300V: dj 0, mob4: mdy 1.71
+  if( Vbias > 390 )
+    N0 = 741; // dlt 11, pwr 5: mdy 0.155
 
-  if( Vbias > 330 )
-    N0 = 1945 * 250/Vbias; // [1/um^3] tune at 350V: dj 10, mob4: mdy 3.39, 3.47
+  if( Vbias > 490 )
+    N0 = 492; // dlt 11, pwr 6: mdy 0.109 ke
 
-  if( Vbias > 380 )
-    //N0 = 1930 * 250/Vbias; // [1/um^3] tune at 400V with dj 10, mob4:  mdy 1.96
-    N0 = 1910 * 250/Vbias; // [1/um^3] tune at 400V with dj 10, mob3:  mdy 2.16
+  if( Vbias > 590 )
+    N0 = 249; // dlt 11, pwr 6: mdy 0.079
 
-  if( Vbias > 430 )
-    //N0 = 1920 * 250/Vbias; // [1/um^3] tune at 450V with dj 15, mob4: mdy 2.00
-    N0 = 1910 * 250/Vbias; // [1/um^3] tune at 450V with dj 15, mob3: mdy 2.11
-
-  if( Vbias > 480 )
-    //N0 = 1880 * 250/Vbias; // [1/um^3] tune at 500V, dj 30, tauh 28, mob3: mdy 2.74
-    //N0 = 1850 * 250/Vbias; // [1/um^3] tune at 500V, dj 40, tauh 28, mob3: mdy 2.64
-    N0 = 1820 * 250/Vbias; // [1/um^3] tune at 500V, dj 50, tauh 28, mob3: mdy 2.54
-    //N0 = 1780 * 250/Vbias; // [1/um^3] tune at 500V, dj 60, tauh 28, mob3: mdy 2.66
-    //N0 = 1870 * 250/Vbias; // [1/um^3] tune at 500V, dj 50, pow3, tauh 28, mob4: mdy 2.77
-    //N0 = 1870 * 250/Vbias; // [1/um^3] tune at 500V, dj 50, pow4, tauh 28, mob4: mdy 3.11
-    //N0 = 1790 * 250/Vbias; // [1/um^3] tune at 500V, dj 70, pow3, tauh 28, mob4: mdy 2.87
-    //N0 = 1830 * 250/Vbias; // [1/um^3] tune at 500V, dj 70, pow4, tauh 28, mob4: mdy 2.90
-
-  if( Vbias > 580 )
-    //N0 = 1910 * 250/Vbias; // [1/um^3] tune at 600V, dj 50, tauh 21: mdy 2.21
-    //N0 = 1390 * 250/Vbias; // [1/um^3] tune at 600V, dj 150, tauh 14: mdy 1.43
-    //N0 = 1320 * 250/Vbias; // [1/um^3] tune at 600V, dj 200, tauh 28, mob4: mdy 1.04
-    N0 = 1305 * 250/Vbias; // [1/um^3] tune at 600V, dj 200, tauh 28, mob3: mdy 1.13
-
-  if( Vbias > 680 )
-    //N0 = 1960 * 250/Vbias; // [1/um^3] tune at 700V, dj 50, tauh 21: mdy 2.73
-    //N0 = 1250 * 250/Vbias; // [1/um^3] tune at 700V, dj 250, tauh 21: mdy 2.06
-    N0 = 1050 * 250/Vbias; // [1/um^3] tune at 700V, dj 290, tauh 21: mdy 1.94
-
-  if( Vbias > 780 )
-    //N0 = 1300 * 250/Vbias; // [1/um^3] tune at 800V, dj 290, tauh 21, mob3: mdy 2.10
-    N0 =  900 * 250/Vbias; // [1/um^3] tune at 800V, dj 350, tauh 21, mob4: mdy 2.05
-    //N0 =  300 * 250/Vbias; // [1/um^3] tune at 800V, dj 450, tauh 28, mob4: mdy bad
-    //N0 = 1900 * 250/Vbias; // [1/um^3] tune at 800V, dj 50, tauh 21, mob4: mdy 2.61
+  if( Vbias > 790 )
+    //N0 = 109; // dlt 15, taue 10, tauh 28: mdy 0.134
+    N0 = 127; // pwr 6: mdy 0.133
 
   // double junction amplitude:
 
-  double dj = 0; // 200V
+  double pwr = 2.0; // position of minimum
+  if( Vbias > 270 )
+    pwr = 3.0;
+  if( Vbias > 320 )
+    pwr = 4.0;
+  if( Vbias > 390 )
+    pwr = 5.0;
+  if( Vbias > 490 )
+    pwr = 6.0;
 
-  if( Vbias > 230 )
-    dj = 0.6;
-  if( Vbias > 280 )
-    dj = 2;
-  if( Vbias > 330 )
-    dj = 5; // mdy 3.47
-  if( Vbias > 380 )
-    dj = 10;
-  if( Vbias > 430 )
-    //dj = 18; // mdy 2.10
-    dj = 20;
-  if( Vbias > 480 )
-    //dj = 30; // mdy 2.74
-    //dj = 40; // mdy 2.64
-    dj = 50; // pow3, mdy 2.54
-  //dj = 60; // pow3, mdy 2.66
-  //dj = 50; // pow4, mdy 3.11
-  //dj = 70; // pow4, mdy 2.87
-  if( Vbias > 580 )
-    dj = 200;
-  if( Vbias > 680 )
-    //dj = 50;
-    //dj = 250; // mdy 2.06
-    dj = 290; // mdy 1.94
-  if( Vbias > 780 )
-    //dj = 50;
-    dj = 350;
-  //dj = 450;
+  //double dj = 2.4; // pow 4 at 225V
+  double dj = 1.0; // pow 3 at 225V: mdy 0.254
+  //double dj = 0.8; // pow 2 at 225V: mdy 0.337
+
+  if( Vbias > 270 )
+    //dj = 3.6; // pow 4: mdy 0.218 ke
+    dj = 2.2; // pow 3: mdy 0.217 ke
+    //dj = 1.4; // pow 2
+
+  if( Vbias > 320 )
+    dj = 5.3; // pwr 4: mdy 0.195
+  //dj = 3.0; // pwr 3
+
+  if( Vbias > 390 )
+    dj = 20; // pwr 5
+
+  if( Vbias > 490 )
+    dj =  70; // pwr 6
+
+  if( Vbias > 590 )
+    dj =  168; // pwr 6: mdy 0.
+
+  if( Vbias > 790 )
+    dj = 286; // pwr 6
+    //dj = 170; // dlt 15, taue 11, tauh 28: mdy 0.122
 
   // doping (space charge):
 
   TF3 * f3 = new
     TF3( "f3",
-	 "x[0]*x[1]*0+[0]*pow(1-x[2]/[2],3)+[1]*exp(-([2]-x[2])/[3])", // dj + exp
+	 "x[0]*x[1]*0+[0]*pow(1-x[2]/[2],[4])+[1]*exp(-([2]-x[2])/[3])", // dj + exp
+	 //"x[0]*x[1]*0+[0]*exp(-x[2]/[4])+[1]*exp(-([2]-x[2])/[3])", // dj + exp
 	 -1000, 1000, -1000, 1000, -1000, 1000 );
 
   f3->SetParameter( 0, dj ); // [1/um^3] for double junction for 500V
   f3->SetParameter( 1, -N0 ); // [1/um^3]
   f3->SetParameter( 2, pz ); // thickness
-  f3->SetParameter( 3, dlt ); // range [um]
+  f3->SetParameter( 3, dlt ); // width [um] n-side
+  f3->SetParameter( 4, pwr ); // width [um] p-side
 
-  double F = 6.6; // [E15 p/cm2] fluence
+  double F = 1.9; // [E15 p/cm2] fluence
 
   // e-trapping [ns]:
 
-  //det->taue = 8.8/F; // [ns] from slope at 800 V, mob3: mdy 1.82
-  det->taue = 11.1/F; // [ns] from slope at 800 V, mob3+: mdy 1.82
-  //det->taue = 11.9/F; // [ns] from slope at 800 V, tauh 28, dj 350, mob4: mdy 2.05
-  //det->taue = 11.4/F; // [ns] from slope at 800 V, tauh 21, dj 350, mob4: mdy 2.10
-  //det->taue = 12.8/F; // [ns] from slope at 800 V, dj 50, mob4: mdy 2.61
+  det->taue = 10.1/F; // [ns] from left peak at 600V
+  //det->taue =  7.5/F; // [ns] at 275V, left peak not smaller, right peak narrower
+  //det->taue = 11.1/F; // [ns] slope at 800 V
 
   // hole trapping [ns]:
 
-  //det->tauh =  7/F; // [ns] at 500V
-  //det->tauh = 14/F; // [ns] at 600 V
-  //det->tauh = 21/F; // [ns] at 800 V
-  det->tauh = 28/F; // [ns] at 600 V
+  det->tauh = 28/F; // [ns] tune 500 V
 
   det->Mobility = 3; // mobility model: 1=Canali, 3=Scharf, 4=Jacoboni (KField)
 
@@ -182,7 +165,7 @@ void edg9F6( double Vbias = 800 )
 
   det->NeffF = f3;
 
-  det->Temperature = 258; // Sep 2018
+  det->Temperature = 263; // Mar 2017
   det->diff = 0;
   det->Landau = 0;
   det->MTresh = 1.01; // multiplication
@@ -199,12 +182,14 @@ void edg9F6( double Vbias = 800 )
     det->CalField(1); // Ramo weight field
 
     det->Save( "edg9", // model
-	       Form( "edg9_px%d_Ramo.root", int( px + 0.2 ) ), // file
+	       Form( "edg9_px%d_pz%d_Ramo.root",
+		     int( px + 0.2 ),int( pz + 0.2 ) ), // file
 	       0 ); // only Ramo
   }
   else // save time
     det->Read( "edg9", // model
-	       Form( "edg9_px%d_Ramo.root", int( px + 0.2 ) ), // file
+	       Form( "edg9_px%d_pz%d_Ramo.root",
+		     int( px + 0.2 ),int( pz + 0.2 ) ), // file
 	       0 ); // only Ramo
 
   // det->Read opens a root file
@@ -230,13 +215,13 @@ void edg9F6( double Vbias = 800 )
   cout << "Temp " << Temp << endl;
 
   TProfile * Nvsy = new TProfile( "nvsy", "space charge;height [#mum];space charge [1/#mum^{3}]",
-				  int(pz+0.1), -0.5*pz, 0.5*pz );
+				  int(pz+0.1)/2, -0.5*pz, 0.5*pz );
   TProfile * Evsy = new TProfile( "evsy", "field;height [#mum];E field [V/#mum]",
-				  int(pz+0.1), -0.5*pz, 0.5*pz );
+				  int(pz+0.1)/2, -0.5*pz, 0.5*pz );
   TProfile * Vvsy = new TProfile( "vvsy", "e drift velocity;height [#mum];e drift velocity [#mum/ns]",
-				  int(pz+0.1), -0.5*pz, 0.5*pz );
+				  int(pz+0.1)/2, -0.5*pz, 0.5*pz );
   TProfile * Rvsy = new TProfile( "rvsy", "e range;height [#mum];e range [#mum]",
-				  int(pz+0.1), -0.5*pz, 0.5*pz );
+				  int(pz+0.1)/2, -0.5*pz, 0.5*pz );
 
   for( int ii = 1; ii <= field->GetNbinsX(); ++ii ) {
 
@@ -291,7 +276,7 @@ void edg9F6( double Vbias = 800 )
   cWP1.Update();
 
   TProfile * Wvsy = new TProfile( "wvsy", "weighting potential;height [#mum];weighting potential",
-				  int(pz+0.1), -0.5*pz, 0.5*pz );
+				  int(pz+0.1)/2, -0.5*pz, 0.5*pz );
 
   for( int ii = 1; ii <= wpot->GetNbinsX(); ++ii ) {
     double z = wpot->GetBinCenter(ii);
@@ -308,11 +293,11 @@ void edg9F6( double Vbias = 800 )
 
   det->enp[0] = 1.5*px; // mid
   det->enp[1] = 0.0*py; // entry point y
-  det->enp[2] = 0.5*pz; // entry point z
+  det->enp[2] = 0.8*pz; // entry point z
 
   det->exp[0] = 1.5*px;
   det->exp[1] = 3.0*py;
-  det->exp[2] = 0.5*pz;
+  det->exp[2] = 0.8*pz;
 
   int ndiv = 30;
   TCanvas c1;
@@ -320,21 +305,19 @@ void edg9F6( double Vbias = 800 )
   det->ShowMipIR(ndiv);
   c1.Update();
 
-  gStyle->SetOptStat(111111);
-
   TH1I * hq = new TH1I( "q", "charge;charge [ke];tracks", 400, 0, 40 );
 
   TProfile * Qvsy = new
     TProfile( "qvsy", "signal vs height;height [#mum];<readout signal> [relative]",
-	      int(pz+0.1), -0.5*pz, 0.5*pz );
+	      int(pz+0.1)/2, -0.5*pz, 0.5*pz );
 
   TProfile * Pvsy = new
     TProfile( "pvsy", "signal vs height;height [mm];<readout signal> [relative]",
-	      2*int(pz+0.1), -pz*1e-3, pz*1e-3 ); // like data
+	      2*int(pz+0.1)/2, -pz*1e-3, pz*1e-3 ); // like data
 
   TProfile * Svsy = new
     TProfile( "svsy", "signal vs smeared height;smeared height [mm];<readout signal> [relative]",
-	      2*int(pz+0.1), -pz*1e-3, pz*1e-3 ); // like data
+	      2*int(pz+0.1)/2, -pz*1e-3, pz*1e-3 ); // like data
 
   int nev = 1;
   if( det->diff )
@@ -345,14 +328,12 @@ void edg9F6( double Vbias = 800 )
   TCanvas csteps;
   csteps.SetTitle("pulse");
 
-  for( double z = 0.5; z < pz; z += 1 ) {
+  for( double z = 1; z < pz; z += 2 ) {
 
     det->enp[2] = z; // height
     det->exp[2] = z;
 
-    double y = z - int(0.5*pz) - 2; // align 174 800 V
-    if( Vbias < 720 )
-      y = z - int(0.5*pz) - 0; // align 174 200 V
+    double y = z - int(0.5*pz); // shift (don't invert)
 
     double sumq = 0;
 
@@ -375,7 +356,7 @@ void edg9F6( double Vbias = 800 )
 
   } // z
 
-  Double_t smr = 0.010; // [mm] tuned to shallow charge at 800V
+  Double_t smr = 0.020; // [mm] width at 325V
 
   double invsq2pi = 0.3989422804014; // 1/sqrt(2pi) for Gaussian norm
   double stp = Pvsy->GetBinWidth(1); // for normalization
@@ -421,7 +402,7 @@ void edg9F6( double Vbias = 800 )
 
   delete det;
 
-  cout << "N0 " << N0*Vbias/250 << endl;
+  cout << "N0 " << N0 << endl;
   cout << "Emax = " << dlt*q0*N0/eps*1E4 << " V/um" << endl;
   cout << "track smearing " << smr*1e3 << " um" << endl;
 

@@ -335,8 +335,8 @@ KDetector::KDetector()
   pos = NULL;
   neg = NULL;
   sum = NULL;
-  //SetDriftHisto( 25.0, 500 ); // [ns]
-  SetDriftHisto( 10, 500 ); // [ns] DP for edge9 at 400V, tauh=2/F
+  SetDriftHisto( 25.0, 500 ); // [ns]
+  //SetDriftHisto( 10, 500 ); // [ns] DP for edge9 at 400V, tauh=2/F
   qnode[0] = 0;
 
   // setting up general variables
@@ -925,8 +925,8 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t qsign,
 
     // termination of the drift:
 
-    //if( t > 25E-9 ) // [s] LHC
-    if( t > 10E-9 ) // [s] DP for edge9 at 400V, tauh=2/F
+    if( t > 25E-9 ) // [s] LHC
+      //if( t > 10E-9 ) // [s] DP for edge9 at 400V, tauh=2/F
       is_hit = 9;
     /*
     Float_t WPot = Ramo[0].CalPotXYZ(cx,cy,cz); // should be all nodes
@@ -943,7 +943,8 @@ void KDetector::Drift( Double_t sx, Double_t sy, Double_t sz, Float_t qsign,
       printf( "(t=%e, vel=%e) [Ch=%f ChInt=%f] Ishit=%d \n",
 	      t, vel, seg->Charge[st], sumc[0], is_hit );
 
-  } while( !is_hit ); // Do until the end of drift
+  }
+  while( !is_hit ); // Do until the end of drift
 
   (*seg).Xlength = pathlen;
   (*seg).Ylength = pathlen;
