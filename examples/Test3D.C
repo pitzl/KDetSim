@@ -19,7 +19,7 @@
 
   det->SetUpVolume( 1, 1 );
 
-  // define  columns #, postions, weigthing factor 2=0 , material Al=1
+  // define  columns #, postions, weighting factor 2=0 , material Al=1
 
   det->SetUpColumn( 0,   0,  0, 3, 99,     2, 1 );
   det->SetUpColumn( 1, 100,  0, 3, 99,     2, 1 );
