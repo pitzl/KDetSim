@@ -1206,8 +1206,8 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
       gr->Draw( "L" );
     }
     else {
-      gr3D->SetLineStyle(1);  
       gr3D->SetLineColor(4); 
+      gr3D->SetLineStyle(1);  
       gr3D->Draw( "SAME" ); 
     }
 
@@ -1226,8 +1226,8 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
       gr->Draw( "L" );
     }
     else {
-      gr3D->SetLineStyle(1);  
       gr3D->SetLineColor(2); 
+      gr3D->SetLineStyle(1);  
       gr3D->Draw( "SAME" ); 
     }
 
