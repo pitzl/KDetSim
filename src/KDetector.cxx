@@ -1201,13 +1201,13 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
       gr3D = new TPolyLine3D(seg.Steps,&seg.Xtrack[1],&seg.Ytrack[1],&seg.Ztrack[1]); 	
 
     if( nz == 1 ) {
-      gr->SetLineColor(2);
+      gr->SetLineColor(4);
       gr->SetLineStyle(1);
       gr->Draw( "L" );
     }
     else {
+      gr3D->SetLineColor(4); 
       gr3D->SetLineStyle(1);  
-      gr3D->SetLineColor(2); 
       gr3D->Draw( "SAME" ); 
     }
 
@@ -1221,13 +1221,13 @@ void KDetector::ShowMipIR( Int_t ndiv, Int_t color, Int_t how )
       gr3D = new TPolyLine3D(seg.Steps,&seg.Xtrack[1],&seg.Ytrack[1],&seg.Ztrack[1]); 	
 
     if( nz == 1 ) {
-      gr->SetLineColor(4);
+      gr->SetLineColor(2);
       gr->SetLineStyle(3); 
       gr->Draw( "L" );
     }
     else {
+      gr3D->SetLineColor(2); 
       gr3D->SetLineStyle(1);  
-      gr3D->SetLineColor(4); 
       gr3D->Draw( "SAME" ); 
     }
 
@@ -1456,8 +1456,8 @@ void KDetector::SetDriftHisto( Float_t x, Int_t numbins )
   sum->GetYaxis()->SetTitleOffset(1.4);
   neg->GetYaxis()->SetTitleOffset(1.4);
   pos->GetYaxis()->SetTitleOffset(1.4);
-  pos->SetLineColor(2);
-  neg->SetLineColor(4);
+  pos->SetLineColor(4);
+  neg->SetLineColor(2);
   sum->SetLineColor(1);	
 
 }
