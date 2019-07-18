@@ -46,6 +46,11 @@ void K3D::SetUpColumn(Int_t n, Float_t posX, Float_t posY, Float_t R, Float_t De
   PosM[n]=Mat;
 }
 
+void K3D::SetColumnW( Int_t n, Short_t Wei )
+{
+  PosW[n]=Wei;
+}
+
 
 void K3D::SetUpVolume(Float_t St1, Float_t St2)
 {

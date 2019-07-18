@@ -42,6 +42,7 @@ public:
 
   K3D(Int_t, Float_t=100, Float_t=100, Float_t=105);
   void SetUpColumn(Int_t, Float_t, Float_t, Float_t, Float_t, Short_t, Short_t);
+  void SetColumnW( Int_t n, Short_t w );
   void SetUpVolume(Float_t, Float_t );
   void SetUpElectrodes(Int_t=0);
   void SetUpMaterial(Int_t mat);
